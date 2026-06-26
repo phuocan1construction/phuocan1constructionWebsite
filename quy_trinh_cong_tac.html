@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quy trình thi công - Sửa chữa cải tạo công trình dân dụng</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+  
+  * { margin:0; padding:0; box-sizing:border-box; }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+  }
+
+  .app { display: flex; height: 100vh; overflow: hidden; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 320px;
+    min-width: 320px;
+    background: #1e293b;
+    border-right: 1px solid #334155;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .sidebar-header {
+    padding: 20px 16px 12px;
+    border-bottom: 1px solid #334155;
+    background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+  }
+
+  .sidebar-header h1 {
+    font-size: 15px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .sidebar-header p {
+    font-size: 11px;
+    color: rgba(255,255,255,0.7);
+    margin-top: 4px;
+  }
+
+  .search-box {
+    padding: 12px;
+    border-bottom: 1px solid #334155;
+  }
+
+  .search-box input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #475569;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 13px;
+    outline: none;
+    font-family: inherit;
+  }
+
+  .search-box input::placeholder { color: #64748b; }
+  .search-box input:focus { border-color: #818cf8; }
+
+  .sidebar-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 8px;
+  }
+
+  .sidebar-list::-webkit-scrollbar { width: 5px; }
+  .sidebar-list::-webkit-scrollbar-track { background: transparent; }
+  .sidebar-list::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
+  .cat-group { margin-bottom: 4px; }
+
+  .cat-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    color: #94a3b8;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    border-radius: 6px;
+    font-family: inherit;
+    text-align: left;
+  }
+
+  .cat-toggle:hover { background: rgba(99,102,241,0.1); color: #c7d2fe; }
+  .cat-toggle .arrow { transition: transform 0.2s; font-size: 10px; }
+  .cat-toggle .arrow.open { transform: rotate(90deg); }
+  .cat-toggle .count {
+    margin-left: auto;
+    background: #334155;
+    color: #94a3b8;
+    font-size: 10px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  .cat-items { padding-left: 8px; }
+
+  .task-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 10px;
+    border: none;
+    background: transparent;
+    color: #cbd5e1;
+    font-size: 12.5px;
+    cursor: pointer;
+    border-radius: 6px;
+    text-align: left;
+    font-family: inherit;
+    line-height: 1.35;
+    transition: all 0.15s;
+  }
+
+  .task-btn:hover { background: rgba(99,102,241,0.15); color: #e0e7ff; }
+  .task-btn.active {
+    background: linear-gradient(135deg, rgba(99,102,241,0.25), rgba(139,92,246,0.2));
+    color: #c7d2fe;
+    font-weight: 600;
+  }
+
+  .task-btn .num {
+    min-width: 26px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #334155;
+    color: #94a3b8;
+    font-size: 10px;
+    font-weight: 700;
+    border-radius: 5px;
+    flex-shrink: 0;
+  }
+
+  .task-btn.active .num {
+    background: #6366f1;
+    color: #fff;
+  }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 40px;
+    background: #0f172a;
+  }
+
+  .main::-webkit-scrollbar { width: 6px; }
+  .main::-webkit-scrollbar-track { background: transparent; }
+  .main::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+
+  .main-header {
+    margin-bottom: 28px;
+  }
+
+  .main-header .cat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #818cf8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .main-header h2 {
+    font-size: 26px;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+
+  .main-header .meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .meta-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    font-size: 11.5px;
+    color: #94a3b8;
+  }
+
+  .meta-tag strong { color: #e2e8f0; font-weight: 600; }
+
+  /* Flowchart */
+  .flowchart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 20px 0;
+  }
+
+  .flow-node {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 12px;
+    padding: 14px 18px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .flow-node:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+
+  .flow-node.start {
+    background: linear-gradient(135deg, #059669, #10b981);
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 28px;
+    padding: 12px 20px;
+    max-width: 320px;
+  }
+
+  .flow-node.end {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+    text-align: center;
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    border-radius: 28px;
+    padding: 12px 20px;
+    max-width: 320px;
+  }
+
+  .flow-node.process {
+    background: #1e293b;
+    border: 1px solid #334155;
+  }
+
+  .flow-node.check {
+    background: #1e293b;
+    border: 2px solid #f59e0b;
+    max-width: 420px;
+  }
+
+  .flow-node.warn {
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+
+  .flow-step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #6366f1;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 10px;
+    flex-shrink: 0;
+    vertical-align: middle;
+  }
+
+  .flow-node .title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #f1f5f9;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+  }
+
+  .flow-node .desc {
+    font-size: 12px;
+    color: #94a3b8;
+    line-height: 1.5;
+    padding-left: 34px;
+  }
+
+  .flow-node.check .title { color: #fbbf24; }
+  .flow-node.check .flow-step-num { background: #f59e0b; }
+  .flow-node.warn .title { color: #f87171; }
+  .flow-node.warn .flow-step-num { background: #ef4444; }
+
+  .flow-arrow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 36px;
+    position: relative;
+  }
+
+  .flow-arrow .line {
+    width: 2px;
+    flex: 1;
+    background: linear-gradient(to bottom, #6366f1, #818cf8);
+  }
+
+  .flow-arrow .head {
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 8px solid #818cf8;
+  }
+
+  /* Welcome */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 70vh;
+    text-align: center;
+    opacity: 0.6;
+  }
+
+  .welcome-icon { font-size: 56px; margin-bottom: 16px; }
+  .welcome h2 { font-size: 22px; color: #94a3b8; font-weight: 600; }
+  .welcome p { font-size: 14px; color: #64748b; margin-top: 8px; }
+
+  /* Print */
+  .print-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 18px;
+    background: #6366f1;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .print-btn:hover { background: #4f46e5; }
+
+  /* Nav buttons */
+  .nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 32px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .nav-btn {
+    padding: 8px 16px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    color: #cbd5e1;
+    border-radius: 8px;
+    font-size: 12.5px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+
+  .nav-btn:hover { background: #334155; color: #fff; }
+  .nav-btn:disabled { opacity: 0.3; cursor: default; }
+
+  /* Mobile */
+  .mobile-header {
+    display: none;
+    padding: 12px 16px;
+    background: linear-gradient(135deg, #1e40af, #7c3aed);
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .mobile-header h1 { font-size: 14px; color: #fff; font-weight: 700; }
+
+  .hamburger {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    padding: 4px;
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { 
+      position: fixed;
+      left: -320px;
+      top: 0;
+      height: 100%;
+      z-index: 100;
+      transition: left 0.3s;
+    }
+    .sidebar.open { left: 0; }
+    .sidebar-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 99;
+    }
+    .sidebar-overlay.open { display: block; }
+    .mobile-header { display: flex; }
+    .main { padding: 16px; }
+    .main-header h2 { font-size: 20px; }
+    .flow-node { max-width: 100%; }
+    .print-btn { bottom: 12px; right: 12px; padding: 8px 14px; font-size: 12px; }
+  }
+
+  @media print {
+    .sidebar, .mobile-header, .print-btn, .nav-buttons { display: none !important; }
+    .main { padding: 20px; }
+    body { background: #fff; color: #000; }
+    .flow-node.process { border-color: #999; background: #f9f9f9; }
+    .flow-node .title { color: #111; }
+    .flow-node .desc { color: #444; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app"></div>
+
+<script>
+const DATA = [
+  { cat: "I. PHÁ DỠ", tasks: [
+    { id:1, name:"Phá dỡ tường gạch", unit:"m³", time:"0.5–1 ngày/10m³", steps:[
+      {t:"Khảo sát hiện trạng",d:"Xác định loại tường (chịu lực/ngăn), vị trí đường ống, dây điện chôn trong tường",type:"process"},
+      {t:"Ngắt điện, nước khu vực thi công",d:"Cắt toàn bộ nguồn điện, nước đi qua tường cần phá",type:"warn"},
+      {t:"Che chắn, bảo vệ khu vực xung quanh",d:"Dùng bạt che đồ đạc, sàn; lắp rào chắn an toàn",type:"process"},
+      {t:"Phá dỡ từ trên xuống dưới",d:"Dùng búa tạ, máy đục phá từ đỉnh tường xuống chân, theo từng lớp",type:"process"},
+      {t:"Thu gom, vận chuyển phế thải",d:"Xúc gạch vụn vào bao tải, vận chuyển ra ngoài công trình",type:"process"},
+      {t:"Kiểm tra, nghiệm thu",d:"Kiểm tra kết cấu xung quanh không bị ảnh hưởng, vệ sinh mặt bằng",type:"check"}
+    ]},
+    { id:2, name:"Phá dỡ sàn bê tông", unit:"m³", time:"1–2 ngày/10m³", steps:[
+      {t:"Khảo sát kết cấu sàn",d:"Xác định chiều dày sàn, vị trí thép, dầm liên quan. Lập phương án chống đỡ",type:"process"},
+      {t:"Lắp hệ chống đỡ tạm",d:"Dùng giáo chống/cây chống thép đỡ các kết cấu liên quan",type:"warn"},
+      {t:"Cắt sàn theo ô nhỏ",d:"Dùng máy cắt bê tông cắt sàn thành từng ô 0.5–1m² để kiểm soát",type:"process"},
+      {t:"Đục phá từng ô sàn",d:"Dùng máy đục, búa phá từng ô. Cắt thép bằng máy cắt/mài",type:"process"},
+      {t:"Thu dọn phế thải",d:"Hạ khối bê tông an toàn, thu gom vận chuyển",type:"process"},
+      {t:"Kiểm tra kết cấu còn lại",d:"Đảm bảo dầm, cột, sàn lân cận không bị nứt, hư hại",type:"check"}
+    ]},
+    { id:3, name:"Phá dỡ dầm bê tông", unit:"m³", time:"1–2 ngày/m³", steps:[
+      {t:"Khảo sát, lập phương án",d:"Xác định dầm chịu lực hay phụ, kích thước, thép bố trí",type:"process"},
+      {t:"Chống đỡ sàn/kết cấu phía trên",d:"Lắp hệ giáo chống, đảm bảo an toàn kết cấu liên quan",type:"warn"},
+      {t:"Đục bê tông bảo vệ",d:"Đục lớp bê tông bảo vệ, lộ cốt thép chịu lực",type:"process"},
+      {t:"Cắt cốt thép, phá dầm",d:"Cắt thép từng đoạn, phá bê tông dầm theo trình tự từ giữa ra 2 đầu",type:"process"},
+      {t:"Xử lý mối nối",d:"Xử lý đầu dầm tại vị trí liên kết với cột/tường",type:"process"},
+      {t:"Nghiệm thu",d:"Kiểm tra kết cấu tổng thể, vệ sinh mặt bằng",type:"check"}
+    ]},
+    { id:4, name:"Phá dỡ cột bê tông", unit:"m³", time:"1–2 ngày/m³", steps:[
+      {t:"Đánh giá kết cấu",d:"Xác minh cột không còn chịu lực hoặc đã có phương án thay thế",type:"warn"},
+      {t:"Chống đỡ tạm dầm/sàn phía trên",d:"Lắp hệ chống đỡ chắc chắn trước khi tháo cột",type:"warn"},
+      {t:"Đục bê tông cột từ trên xuống",d:"Đục phá lớp bê tông, lộ thép. Phá từng đoạn 30–50cm",type:"process"},
+      {t:"Cắt cốt thép",d:"Cắt thép dọc, thép đai bằng máy cắt",type:"process"},
+      {t:"Xử lý chân cột",d:"Phá chân cột liên kết với móng, xử lý mặt phẳng",type:"process"},
+      {t:"Nghiệm thu an toàn",d:"Kiểm tra hệ chống đỡ, kết cấu tổng thể ổn định",type:"check"}
+    ]},
+    { id:5, name:"Phá dỡ cầu thang bê tông", unit:"m³", time:"1–3 ngày/bộ", steps:[
+      {t:"Khảo sát kết cấu cầu thang",d:"Xác định liên kết cầu thang với dầm/sàn, bản thang/cốn thang",type:"process"},
+      {t:"Tháo dỡ lan can, tay vịn",d:"Tháo bỏ lan can sắt/inox/kính, tay vịn gỗ",type:"process"},
+      {t:"Phá bậc thang từ trên xuống",d:"Đục phá từng bậc từ tầng trên xuống. Phá lớp hoàn thiện trước, sau đó đến BT",type:"process"},
+      {t:"Phá bản thang, chiếu nghỉ",d:"Cắt, đục bê tông bản thang và chiếu nghỉ/chiếu tới",type:"process"},
+      {t:"Xử lý lỗ sàn sau phá",d:"Bịt lỗ thông tầng nếu cần, hoặc xử lý mép sàn",type:"process"},
+      {t:"Vệ sinh, nghiệm thu",d:"Thu dọn phế thải, kiểm tra kết cấu xung quanh",type:"check"}
+    ]},
+    { id:6, name:"Phá dỡ mái tôn/ngói", unit:"m²", time:"0.5–1 ngày/50m²", steps:[
+      {t:"Lắp giàn giáo, lưới an toàn",d:"Dựng giáo xung quanh, trải lưới chống rơi vật liệu",type:"warn"},
+      {t:"Tháo phụ kiện mái",d:"Tháo máng xối, nóc, diềm mái, ống thoát nước",type:"process"},
+      {t:"Tháo tôn/ngói từ nóc xuống",d:"Tháo vít tôn hoặc nhấc ngói theo hàng từ đỉnh mái xuống",type:"process"},
+      {t:"Tháo xà gồ, cầu phong",d:"Tháo hệ khung đỡ mái (xà gồ thép/gỗ, cầu phong, li tô)",type:"process"},
+      {t:"Hạ vật liệu an toàn",d:"Chuyển vật liệu xuống bằng ròng rọc/thủ công, không ném",type:"process"},
+      {t:"Kiểm tra, thu dọn",d:"Kiểm tra kết cấu tường, mối nối. Vệ sinh",type:"check"}
+    ]},
+    { id:7, name:"Tháo dỡ khuôn cửa gỗ/nhôm", unit:"bộ", time:"0.5–1 giờ/bộ", steps:[
+      {t:"Tháo cánh cửa",d:"Tháo bản lề, nhấc cánh cửa ra khỏi khuôn",type:"process"},
+      {t:"Tháo nẹp, ron khuôn",d:"Gỡ nẹp che, ron chèn giữa khuôn và tường",type:"process"},
+      {t:"Tháo vít/đinh giữ khuôn",d:"Vặn vít hoặc nhổ đinh liên kết khuôn với tường",type:"process"},
+      {t:"Nhấc khuôn cửa ra",d:"Cẩn thận nhấc khuôn, tránh làm vỡ tường xung quanh",type:"process"},
+      {t:"Xử lý lỗ trống",d:"Vệ sinh lỗ cửa, trám vá nếu cần lắp cửa mới",type:"process"}
+    ]},
+    { id:8, name:"Phá dỡ nền gạch lát", unit:"m²", time:"0.5–1 ngày/20m²", steps:[
+      {t:"Che chắn khu vực",d:"Bảo vệ đồ đạc, chân tường, ống nước sàn",type:"process"},
+      {t:"Đục phá gạch lát",d:"Dùng máy đục phá gạch và lớp vữa lót bên dưới",type:"process"},
+      {t:"Làm sạch mặt sàn",d:"Đục sạch vữa cũ bám trên sàn bê tông, tạo mặt phẳng",type:"process"},
+      {t:"Kiểm tra sàn bê tông gốc",d:"Xem xét sàn có nứt, thấm dột, cần xử lý không",type:"check"},
+      {t:"Thu dọn phế thải",d:"Thu gom gạch vỡ, vận chuyển ra ngoài",type:"process"}
+    ]},
+    { id:9, name:"Đục rãnh tường đi ống/dây điện", unit:"md", time:"5–10 md/ngày", steps:[
+      {t:"Vạch tuyến trên tường",d:"Dùng bút/dây đánh dấu tuyến ống/dây cần đi theo bản vẽ",type:"process"},
+      {t:"Cắt mép rãnh",d:"Dùng máy cắt rãnh cắt 2 đường song song theo tuyến đã vạch",type:"process"},
+      {t:"Đục lõi rãnh",d:"Dùng đục + búa hoặc máy đục phá phần gạch/bê tông giữa 2 đường cắt",type:"process"},
+      {t:"Luồn ống/dây",d:"Đặt ống PVC luồn dây hoặc ống nước vào rãnh",type:"process"},
+      {t:"Trám rãnh",d:"Trám kín rãnh bằng vữa xi măng, để khô trước khi hoàn thiện",type:"process"}
+    ]},
+    { id:10, name:"Tháo dỡ trần thạch cao", unit:"m²", time:"0.5 ngày/30m²", steps:[
+      {t:"Ngắt điện khu vực trần",d:"Tắt CB điện khu vực, tháo đèn/thiết bị gắn trần",type:"warn"},
+      {t:"Tháo tấm trần",d:"Gỡ vít giữ tấm thạch cao, hạ từng tấm xuống",type:"process"},
+      {t:"Tháo khung xương",d:"Tháo thanh chính, thanh phụ, ty treo, tắc kê",type:"process"},
+      {t:"Kiểm tra hệ MEP bên trên",d:"Xem xét ống điện, ống nước, ống lạnh phía trên trần",type:"check"},
+      {t:"Thu dọn vệ sinh",d:"Thu gom vật liệu, vệ sinh khu vực",type:"process"}
+    ]}
+  ]},
+  { cat: "II. KẾT CẤU – XÂY DỰNG THÔ", tasks: [
+    { id:11, name:"Xây tường gạch mới (110)", unit:"m²", time:"1–2 ngày/10m²", steps:[
+      {t:"Chuẩn bị vật tư",d:"Gạch tưới nước ẩm, trộn vữa xi măng cát đúng mác",type:"process"},
+      {t:"Lấy dấu, căng dây",d:"Đánh dấu chân tường trên sàn, căng dây mực theo đúng tim trục",type:"process"},
+      {t:"Xây hàng gạch đầu tiên",d:"Trải vữa nền, đặt gạch hàng đầu, cân chỉnh thước thủy",type:"process"},
+      {t:"Xây các hàng tiếp theo",d:"Xây so le mạch, mạch vữa đều 10–12mm, kiểm tra thẳng đứng liên tục",type:"process"},
+      {t:"Cài râu thép liên kết cột/tường cũ",d:"Mỗi 3–5 hàng gạch, cài râu thép Ø6 vào cột/tường hiện hữu",type:"process"},
+      {t:"Chèn hàng cuối cùng (đầu tường)",d:"Xây hàng gạch nghiêng chèn kín dầm/sàn, bơm vữa khe hở",type:"process"},
+      {t:"Nghiệm thu",d:"Kiểm tra độ thẳng đứng, phẳng mặt, mạch vữa đều",type:"check"}
+    ]},
+    { id:12, name:"Xây tường gạch mới (220)", unit:"m²", time:"1–2 ngày/8m²", steps:[
+      {t:"Chuẩn bị vật tư",d:"Gạch ngâm nước, trộn vữa mác 75",type:"process"},
+      {t:"Lấy dấu, căng dây",d:"Xác định vị trí tường 220 trên mặt bằng, căng dây",type:"process"},
+      {t:"Xây kiểu 1 dọc 1 ngang",d:"Xây so le: hàng dọc xen hàng ngang để đảm bảo liên kết",type:"process"},
+      {t:"Cài râu thép, giằng tường",d:"Cài râu thép liên kết với cột, bổ trụ giằng nếu tường dài",type:"process"},
+      {t:"Chèn đầu tường, kiểm tra",d:"Chèn kín đầu tường, kiểm tra thẳng đứng, phẳng",type:"check"}
+    ]},
+    { id:13, name:"Đổ bê tông cột", unit:"m³", time:"1–2 ngày/m³", steps:[
+      {t:"Gia công, lắp cốt thép cột",d:"Cắt, uốn thép dọc + thép đai theo bản vẽ. Buộc thép vào vị trí",type:"process"},
+      {t:"Lắp ván khuôn (coppha)",d:"Ghép coppha gỗ/thép quanh cốt thép, cố định chắc chắn, đảm bảo kích thước",type:"process"},
+      {t:"Kiểm tra trước khi đổ",d:"Kiểm tra vị trí thép, khoảng cách đai, lớp bê tông bảo vệ, coppha",type:"check"},
+      {t:"Đổ bê tông",d:"Đổ BT theo lớp 30–40cm, đầm dùi kỹ mỗi lớp, tránh rỗ tổ ong",type:"process"},
+      {t:"Bảo dưỡng bê tông",d:"Tưới nước bảo dưỡng ≥7 ngày. Tháo coppha sau 2–3 ngày",type:"process"},
+      {t:"Tháo coppha, nghiệm thu",d:"Tháo coppha, kiểm tra bề mặt cột, xử lý khuyết tật nếu có",type:"check"}
+    ]},
+    { id:14, name:"Đổ bê tông dầm", unit:"m³", time:"1–2 ngày/m³", steps:[
+      {t:"Gia công, lắp thép dầm",d:"Cắt uốn thép chịu lực, thép đai. Lắp vào vị trí, buộc chặt",type:"process"},
+      {t:"Lắp coppha đáy và thành dầm",d:"Ghép coppha, chống đỡ bằng giáo. Kiểm tra cao độ, kích thước",type:"process"},
+      {t:"Nghiệm thu cốt thép",d:"Kiểm tra số lượng, đường kính, khoảng cách thép, nối thép",type:"check"},
+      {t:"Đổ bê tông",d:"Đổ BT đồng thời với sàn nếu có. Đầm dùi kỹ, đặc biệt góc vuông",type:"process"},
+      {t:"Bảo dưỡng",d:"Tưới ẩm ≥7 ngày, tháo coppha thành sau 2 ngày, đáy sau 21 ngày",type:"process"},
+      {t:"Nghiệm thu",d:"Kiểm tra kích thước, bề mặt, lấy mẫu BT nếu cần",type:"check"}
+    ]},
+    { id:15, name:"Đổ bê tông sàn", unit:"m³", time:"2–3 ngày/10m²", steps:[
+      {t:"Lắp hệ giáo chống",d:"Dựng hệ giáo/cây chống đỡ sàn, điều chỉnh cao độ",type:"process"},
+      {t:"Ghép coppha sàn",d:"Lát ván khuôn sàn phẳng, kín khít, đúng cao độ thiết kế",type:"process"},
+      {t:"Lắp đặt cốt thép sàn",d:"Rải thép lớp dưới, đặt con kê, rải thép lớp trên. Buộc chắc chắn",type:"process"},
+      {t:"Đặt hộp kỹ thuật, ống chờ",d:"Lắp ống chờ điện, nước, hộp gen đúng vị trí trước khi đổ",type:"process"},
+      {t:"Nghiệm thu trước khi đổ",d:"Kiểm tra toàn bộ: giáo chống, coppha, thép, ống chờ",type:"check"},
+      {t:"Đổ bê tông sàn",d:"Đổ BT đều, dùng thước gạt mặt, đầm bàn, đầm dùi",type:"process"},
+      {t:"Bảo dưỡng, tháo coppha",d:"Bảo dưỡng ẩm ≥7 ngày. Tháo cốp pha sau 21–28 ngày",type:"process"}
+    ]},
+    { id:16, name:"Đổ BT lanh tô, ô văng", unit:"md", time:"0.5–1 ngày/5md", steps:[
+      {t:"Gia công thép lanh tô",d:"Cắt uốn thép dọc và thép đai theo chiều dài, tiết diện thiết kế",type:"process"},
+      {t:"Lắp coppha, đặt thép",d:"Ghép coppha, đặt cốt thép vào, kê đảm bảo lớp bảo vệ",type:"process"},
+      {t:"Đổ bê tông",d:"Đổ BT mác 200–250, đầm chặt",type:"process"},
+      {t:"Bảo dưỡng, tháo coppha",d:"Tưới ẩm, tháo coppha sau 7 ngày",type:"process"}
+    ]},
+    { id:17, name:"Đổ bê tông cầu thang", unit:"m³", time:"2–4 ngày/bộ", steps:[
+      {t:"Lắp coppha bản thang, bậc",d:"Ghép coppha bản nghiêng, coppha bậc, coppha chiếu nghỉ",type:"process"},
+      {t:"Gia công, lắp cốt thép",d:"Rải thép bản thang lớp dưới/trên, thép bậc, thép chiếu nghỉ",type:"process"},
+      {t:"Nghiệm thu cốt thép",d:"Kiểm tra đường kính, khoảng cách, nối thép, lớp bảo vệ",type:"check"},
+      {t:"Đổ bê tông",d:"Đổ BT từ chân thang lên. Đầm dùi kỹ, hoàn thiện mặt bậc",type:"process"},
+      {t:"Bảo dưỡng",d:"Bảo dưỡng ẩm ≥7 ngày. Tháo coppha bậc sau 3 ngày, coppha đáy sau 21 ngày",type:"process"}
+    ]},
+    { id:18, name:"Gia cố móng", unit:"m³", time:"3–7 ngày", steps:[
+      {t:"Khảo sát, đánh giá móng hiện hữu",d:"Đào mở móng, kiểm tra tình trạng, lấy mẫu đất nền nếu cần",type:"process"},
+      {t:"Lập phương án gia cố",d:"Thiết kế phương án: mở rộng đế móng, ép cọc, bơm vữa...",type:"check"},
+      {t:"Thi công gia cố",d:"Thực hiện theo phương án: đổ BT mở rộng, ép cọc nhồi mini, bơm keo...",type:"process"},
+      {t:"Liên kết móng mới – cũ",d:"Khoan cấy thép, bơm keo epoxy liên kết phần gia cố với móng cũ",type:"process"},
+      {t:"Lấp đất, hoàn trả",d:"Đắp đất nền, đầm chặt từng lớp",type:"process"},
+      {t:"Nghiệm thu",d:"Kiểm tra kết cấu, quan trắc lún nếu cần",type:"check"}
+    ]},
+    { id:19, name:"Gia cố dầm (bọc thép/carbon)", unit:"md", time:"2–5 ngày/dầm", steps:[
+      {t:"Khảo sát tình trạng dầm",d:"Đánh giá mức độ hư hại, nứt, võng. Xác định phương án gia cố",type:"process"},
+      {t:"Xử lý bề mặt dầm",d:"Đục bỏ BT hư, xử lý rỉ thép, vá sửa bề mặt phẳng",type:"process"},
+      {t:"Thi công gia cố",d:"Bọc thép hình + hàn/bulông hoặc dán sợi carbon CFRP bằng keo epoxy",type:"process"},
+      {t:"Hoàn thiện bề mặt",d:"Trát phủ bảo vệ chống cháy, chống ăn mòn",type:"process"},
+      {t:"Nghiệm thu",d:"Kiểm tra bám dính, chất lượng liên kết, đo độ võng",type:"check"}
+    ]},
+    { id:20, name:"Đổ BT bồn hoa, bệ bếp", unit:"md", time:"1–2 ngày", steps:[
+      {t:"Lấy dấu vị trí, kích thước",d:"Đánh dấu trên sàn/tường theo thiết kế",type:"process"},
+      {t:"Gia công thép, lắp coppha",d:"Buộc thép theo kích thước, ghép coppha tạo hình",type:"process"},
+      {t:"Đổ bê tông",d:"Đổ BT, đầm chặt, hoàn thiện mặt",type:"process"},
+      {t:"Tháo coppha, hoàn thiện",d:"Tháo coppha, trát/ốp hoàn thiện bề mặt",type:"process"}
+    ]},
+    { id:21, name:"Xây bồn cầu, hộp gen", unit:"m²", time:"0.5–1 ngày", steps:[
+      {t:"Lấy dấu vị trí",d:"Đánh dấu vị trí trên sàn theo bản vẽ cấp thoát nước",type:"process"},
+      {t:"Xây gạch tạo hình",d:"Xây gạch thẻ/gạch block tạo hộp gen/bệ, chừa lỗ kiểm tra",type:"process"},
+      {t:"Trát hoàn thiện",d:"Trát mặt ngoài phẳng, xử lý chống thấm mặt trong nếu cần",type:"process"},
+      {t:"Lắp nắp/cửa kiểm tra",d:"Lắp nắp inox hoặc nắp nhựa cho lỗ kiểm tra hộp gen",type:"process"}
+    ]}
+  ]},
+  { cat: "III. TRÁT – HOÀN THIỆN BỀ MẶT", tasks: [
+    { id:22, name:"Trát tường trong nhà", unit:"m²", time:"1 ngày/15–20m²", steps:[
+      {t:"Vệ sinh bề mặt tường",d:"Làm sạch bụi, tưới nước ẩm tường gạch",type:"process"},
+      {t:"Đắp mốc trát",d:"Đắp các điểm mốc bằng vữa, dùng dây/laser cân chỉnh mặt phẳng",type:"process"},
+      {t:"Trát lớp lót (trát thô)",d:"Quăng vữa lên tường, tạo lớp bám dính ~5mm",type:"process"},
+      {t:"Trát lớp hoàn thiện",d:"Trát vữa phủ theo mốc, dùng thước nhôm gạt phẳng, bay xoa nhẵn",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra độ phẳng (≤3mm/2m), góc vuông, cạnh thẳng",type:"check"}
+    ]},
+    { id:23, name:"Trát tường ngoài nhà", unit:"m²", time:"1 ngày/12–15m²", steps:[
+      {t:"Dựng giàn giáo ngoài",d:"Lắp giáo an toàn, sàn công tác",type:"warn"},
+      {t:"Vệ sinh, tưới ẩm tường",d:"Phun nước làm sạch, tưới ẩm tường gạch",type:"process"},
+      {t:"Trát lớp lót + hoàn thiện",d:"Trát vữa XM mác cao hơn trong nhà, gạt phẳng, xoa nhẵn",type:"process"},
+      {t:"Kẻ ron chống nứt",d:"Tạo các ron giả chia ô chống nứt cho tường lớn",type:"process"},
+      {t:"Nghiệm thu",d:"Kiểm tra phẳng, không bọng, không nứt",type:"check"}
+    ]},
+    { id:24, name:"Trát trần", unit:"m²", time:"1 ngày/10–12m²", steps:[
+      {t:"Dựng giàn giáo/sàn công tác",d:"Lắp giàn giáo trong nhà đủ cao để thợ thao tác",type:"process"},
+      {t:"Vệ sinh, tưới ẩm trần",d:"Làm sạch bụi, vết dầu coppha trên bề mặt sàn BT",type:"process"},
+      {t:"Đắp mốc trát trần",d:"Đắp mốc vữa, căn chỉnh mặt phẳng trần bằng laser",type:"process"},
+      {t:"Trát vữa trần",d:"Quăng vữa bám, sau đó trát phủ, gạt phẳng, xoa nhẵn",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra phẳng, không bọng, không rạn nứt",type:"check"}
+    ]},
+    { id:25, name:"Láng nền xi măng", unit:"m²", time:"1 ngày/20m²", steps:[
+      {t:"Vệ sinh sàn",d:"Quét sạch, tưới nước ẩm mặt sàn bê tông",type:"process"},
+      {t:"Đặt mốc cao độ",d:"Đánh mốc nền bằng laser/ống nhựa nước, đảm bảo độ dốc (nếu có)",type:"process"},
+      {t:"Trải vữa láng",d:"Trải vữa XM cát mịn dày 20–30mm, gạt phẳng theo mốc",type:"process"},
+      {t:"Xoa mặt nhẵn",d:"Dùng bay/máy xoa mặt khi vữa se mặt",type:"process"},
+      {t:"Bảo dưỡng",d:"Tưới ẩm 3–5 ngày, tránh đi lại trong 24h",type:"process"}
+    ]},
+    { id:26, name:"Đánh bóng, mài nền bê tông", unit:"m²", time:"1 ngày/20–30m²", steps:[
+      {t:"Mài thô",d:"Dùng máy mài sàn gắn đĩa kim cương thô (30–50 grit) mài phẳng",type:"process"},
+      {t:"Xử lý khuyết tật",d:"Trám các lỗ rỗ, vết nứt bằng keo epoxy + xi măng",type:"process"},
+      {t:"Mài tinh",d:"Mài qua nhiều cấp đĩa (100, 200, 400 grit) tạo độ bóng",type:"process"},
+      {t:"Phủ hóa chất cứng nền",d:"Phun/lăn dung dịch lithium/sodium silicate tăng cứng bề mặt",type:"process"},
+      {t:"Đánh bóng hoàn thiện",d:"Mài bóng (800+ grit), đạt độ bóng mong muốn",type:"process"}
+    ]},
+    { id:27, name:"Bả matit tường (2 lớp)", unit:"m²", time:"1 ngày/25–30m²", steps:[
+      {t:"Kiểm tra bề mặt tường trát",d:"Đảm bảo tường khô, phẳng, không bụi, không bọng",type:"check"},
+      {t:"Bả lớp 1 (lót)",d:"Dùng dao bả trải matit lớp 1, lấp đầy các vết lồi lõm",type:"process"},
+      {t:"Chà nhám lớp 1",d:"Chờ khô 4–6h, dùng giấy nhám P120–150 chà phẳng",type:"process"},
+      {t:"Bả lớp 2 (hoàn thiện)",d:"Bả lớp 2 mỏng hơn, tạo bề mặt nhẵn mịn",type:"process"},
+      {t:"Chà nhám hoàn thiện",d:"Chà nhám P180–220, đạt bề mặt mịn, sẵn sàng sơn",type:"process"}
+    ]},
+    { id:28, name:"Sơn lót tường", unit:"m²", time:"1 ngày/50–60m²", steps:[
+      {t:"Kiểm tra bề mặt matit",d:"Đảm bảo mặt nhẵn, khô, sạch bụi sau khi chà nhám",type:"check"},
+      {t:"Khuấy đều sơn lót",d:"Khuấy sơn lót, pha loãng 5–10% nước theo hướng dẫn",type:"process"},
+      {t:"Lăn/phun sơn lót",d:"Lăn đều 1 lớp sơn lót, phủ kín bề mặt",type:"process"},
+      {t:"Chờ khô",d:"Chờ khô 2–4h trước khi sơn phủ",type:"process"}
+    ]},
+    { id:29, name:"Sơn phủ tường trong nhà (2 lớp)", unit:"m²", time:"1 ngày/40–50m²", steps:[
+      {t:"Kiểm tra lớp sơn lót",d:"Đảm bảo sơn lót khô hoàn toàn, bề mặt đều",type:"check"},
+      {t:"Sơn phủ lớp 1",d:"Lăn/phun sơn phủ lớp 1, lăn đều không để chảy/đọng",type:"process"},
+      {t:"Chờ khô lớp 1",d:"Chờ 2–4h cho sơn khô bề mặt",type:"process"},
+      {t:"Sơn phủ lớp 2",d:"Lăn/phun lớp 2, kiểm tra độ phủ đều, màu sắc đồng nhất",type:"process"},
+      {t:"Kiểm tra hoàn thiện",d:"Kiểm tra độ phủ, vết lăn, góc cạnh, dọn dẹp",type:"check"}
+    ]},
+    { id:30, name:"Sơn phủ tường ngoài trời (2 lớp)", unit:"m²", time:"1 ngày/35–40m²", steps:[
+      {t:"Chuẩn bị giàn giáo",d:"Dựng giáo an toàn cho thi công trên cao",type:"warn"},
+      {t:"Vệ sinh bề mặt",d:"Rửa sạch bụi bẩn, rêu mốc bằng máy phun áp lực",type:"process"},
+      {t:"Sơn lót ngoại thất",d:"Lăn/phun 1 lớp sơn lót chuyên dụng ngoài trời",type:"process"},
+      {t:"Sơn phủ 2 lớp",d:"Lăn/phun 2 lớp sơn ngoại thất, mỗi lớp cách nhau 4h",type:"process"},
+      {t:"Nghiệm thu",d:"Kiểm tra độ phủ, màu sắc đều, không chảy/loang",type:"check"}
+    ]},
+    { id:31, name:"Sơn chống thấm tường ngoài", unit:"m²", time:"1 ngày/30m²", steps:[
+      {t:"Xử lý vết nứt",d:"Đục mở vết nứt, trám bằng keo PU hoặc vữa chống thấm",type:"process"},
+      {t:"Vệ sinh bề mặt",d:"Rửa sạch, loại bỏ sơn cũ bong tróc, rêu mốc",type:"process"},
+      {t:"Sơn lót chống kiềm",d:"Lăn 1 lớp sơn lót chống kiềm chuyên dụng",type:"process"},
+      {t:"Sơn chống thấm 2–3 lớp",d:"Lăn sơn chống thấm đàn hồi, mỗi lớp cách 4–6h",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra độ phủ, độ dày, chờ mưa thử để đánh giá",type:"check"}
+    ]}
+  ]},
+  { cat: "IV. CHỐNG THẤM", tasks: [
+    { id:32, name:"Chống thấm sàn mái (màng khò)", unit:"m²", time:"1 ngày/20–25m²", steps:[
+      {t:"Vệ sinh sàn mái",d:"Quét sạch bụi, rác, xử lý mặt sàn phẳng, khô",type:"process"},
+      {t:"Quét lớp lót (primer)",d:"Quét/lăn lớp sơn lót bitum tạo bám dính cho màng khò",type:"process"},
+      {t:"Khò dán màng chống thấm",d:"Trải màng, dùng đèn khò gas nung chảy mặt dưới, dán vào sàn",type:"process"},
+      {t:"Xử lý mối nối, gờ chân tường",d:"Dán chồng mép màng ≥10cm, bẻ màng lên chân tường ≥20cm",type:"process"},
+      {t:"Đổ lớp bê tông bảo vệ",d:"Đổ lớp BT bảo vệ dày 3–5cm lên trên màng",type:"process"},
+      {t:"Thử nước",d:"Ngâm nước 24–48h kiểm tra không thấm",type:"check"}
+    ]},
+    { id:33, name:"Chống thấm sàn mái (sơn CT)", unit:"m²", time:"1 ngày/30m²", steps:[
+      {t:"Vệ sinh sàn mái",d:"Làm sạch, khô ráo bề mặt",type:"process"},
+      {t:"Trám vết nứt",d:"Xử lý các vết nứt bằng keo chống thấm chuyên dụng",type:"process"},
+      {t:"Quét sơn lót",d:"Quét/lăn 1 lớp sơn lót chống thấm",type:"process"},
+      {t:"Quét sơn chống thấm 2–3 lớp",d:"Lăn/quét sơn chống thấm gốc PU/acrylic, mỗi lớp vuông góc nhau",type:"process"},
+      {t:"Thử nước",d:"Ngâm nước 24–48h kiểm tra",type:"check"}
+    ]},
+    { id:34, name:"Chống thấm sàn vệ sinh", unit:"m²", time:"1–2 ngày/phòng", steps:[
+      {t:"Vệ sinh sàn sạch sẽ",d:"Quét sạch bụi, dầu mỡ, đảm bảo sàn khô",type:"process"},
+      {t:"Xử lý các lỗ thông ống",d:"Trám kín quanh cổ ống thoát, ống cấp bằng keo chống thấm",type:"process"},
+      {t:"Quét lớp lót",d:"Quét sơn lót/primer tăng bám dính",type:"process"},
+      {t:"Quét chống thấm 2–3 lớp",d:"Dùng sơn/hợp chất chống thấm gốc xi măng hoặc PU. Bẻ lên tường ≥20cm",type:"process"},
+      {t:"Dán băng chống thấm góc",d:"Dán băng vải chống thấm tại các góc sàn-tường, quanh cổ ống",type:"process"},
+      {t:"Thử nước 24–48h",d:"Đắp đập ngăn nước cửa, đổ nước ngâm 24–48h kiểm tra",type:"check"},
+      {t:"Láng vữa bảo vệ",d:"Láng lớp vữa XM bảo vệ dày 2–3cm trước khi lát gạch",type:"process"}
+    ]},
+    { id:35, name:"Chống thấm chân tường", unit:"md", time:"0.5 ngày/10md", steps:[
+      {t:"Đục vữa trát cũ chân tường",d:"Đục bỏ lớp trát cũ cao ≥30cm từ mặt sàn",type:"process"},
+      {t:"Vệ sinh, để khô",d:"Làm sạch bề mặt gạch, chờ khô",type:"process"},
+      {t:"Quét chống thấm",d:"Quét sơn/hợp chất chống thấm 2–3 lớp lên chân tường",type:"process"},
+      {t:"Trát lại hoàn thiện",d:"Trát vữa chống thấm hoặc vữa thường phủ lên",type:"process"}
+    ]},
+    { id:36, name:"Chống thấm khe co giãn", unit:"md", time:"0.5 ngày/10md", steps:[
+      {t:"Mở rộng khe",d:"Đục mở khe co giãn rộng ≥10mm, sâu ≥15mm",type:"process"},
+      {t:"Vệ sinh khe",d:"Thổi sạch bụi bằng khí nén, lau sạch",type:"process"},
+      {t:"Lắp backer rod",d:"Nhét dây xốp PE (backer rod) vào đáy khe",type:"process"},
+      {t:"Bơm keo PU",d:"Bơm keo PU đàn hồi lấp đầy khe, gạt phẳng mặt",type:"process"},
+      {t:"Kiểm tra",d:"Chờ khô 24h, kiểm tra độ bám dính, đàn hồi",type:"check"}
+    ]},
+    { id:37, name:"Xử lý nứt tường, trần", unit:"md", time:"0.5 ngày/5md", steps:[
+      {t:"Đánh giá vết nứt",d:"Phân loại: nứt chân chim, nứt kết cấu, nứt co ngót",type:"check"},
+      {t:"Đục mở vết nứt",d:"Đục mở rộng vết nứt thành rãnh chữ V",type:"process"},
+      {t:"Vệ sinh, thổi bụi",d:"Thổi sạch bụi, tưới ẩm",type:"process"},
+      {t:"Trám keo/vữa chuyên dụng",d:"Bơm keo epoxy (nứt kết cấu) hoặc trám vữa sửa chữa",type:"process"},
+      {t:"Dán lưới sợi thủy tinh",d:"Dán lưới fiber phủ lên vết nứt, bả matit lên trên",type:"process"},
+      {t:"Hoàn thiện",d:"Bả, sơn lại bề mặt",type:"process"}
+    ]},
+    { id:38, name:"Chống thấm bể nước ngầm", unit:"m²", time:"2–3 ngày", steps:[
+      {t:"Hút cạn nước, vệ sinh bể",d:"Bơm hết nước, cọ rửa sạch thành, đáy bể",type:"process"},
+      {t:"Xử lý vết nứt, rỗ",d:"Trám các vết nứt, rỗ bằng vữa chống thấm",type:"process"},
+      {t:"Quét chống thấm gốc xi măng",d:"Quét 2–3 lớp hợp chất chống thấm (Sika, Kova...) lên toàn bộ",type:"process"},
+      {t:"Chờ khô, thử nước",d:"Chờ khô 7 ngày, đổ nước ngâm 48h kiểm tra",type:"check"}
+    ]},
+    { id:39, name:"Chống thấm ban công, lô gia", unit:"m²", time:"1 ngày/10m²", steps:[
+      {t:"Vệ sinh bề mặt",d:"Đục bỏ gạch lát/vữa cũ nếu có, làm sạch sàn",type:"process"},
+      {t:"Kiểm tra độ dốc",d:"Đảm bảo sàn dốc về phía lỗ thoát ≥1%",type:"check"},
+      {t:"Quét chống thấm",d:"Quét sơn/màng chống thấm 2–3 lớp, bẻ lên tường ≥15cm",type:"process"},
+      {t:"Xử lý chân tường, cổ ống",d:"Dán băng chống thấm quanh cổ ống thoát, góc tường",type:"process"},
+      {t:"Lát gạch/láng bảo vệ",d:"Lát gạch chống trơn hoặc láng vữa bảo vệ lên trên",type:"process"}
+    ]}
+  ]},
+  { cat: "V. LÁT – ỐP", tasks: [
+    { id:40, name:"Lát gạch ceramic nền", unit:"m²", time:"1 ngày/10–12m²", steps:[
+      {t:"Kiểm tra nền, lấy mốc cao độ",d:"Kiểm tra nền phẳng, xác định cao độ hoàn thiện, tạo độ dốc (nếu có)",type:"check"},
+      {t:"Trộn vữa/keo dán",d:"Trộn vữa XM cát hoặc keo dán gạch theo đúng tỉ lệ",type:"process"},
+      {t:"Căng dây, lát hàng đầu tiên",d:"Căng dây mực xác định hàng gạch đầu, lát cân chỉnh kỹ",type:"process"},
+      {t:"Lát các hàng tiếp theo",d:"Rải vữa/keo, đặt gạch, dùng thước kiểm tra phẳng liên tục",type:"process"},
+      {t:"Để ke/mạch đều",d:"Dùng ke nhựa giữ mạch đều 1.5–3mm",type:"process"},
+      {t:"Chít mạch (ron)",d:"Sau 24h, chít ron bằng keo chít mạch, lau sạch bề mặt",type:"process"},
+      {t:"Vệ sinh, nghiệm thu",d:"Lau sạch gạch, kiểm tra phẳng, không bọng",type:"check"}
+    ]},
+    { id:41, name:"Lát gạch porcelain 60x60", unit:"m²", time:"1 ngày/8–10m²", steps:[
+      {t:"Kiểm tra nền, cao độ",d:"Nền phải phẳng, cứng. Xác định cao độ hoàn thiện",type:"check"},
+      {t:"Chuẩn bị keo dán chuyên dụng",d:"Trộn keo dán porcelain (keo dẻo, bám tốt trên mặt nhẵn)",type:"process"},
+      {t:"Căng dây, lát từ giữa phòng ra",d:"Xác định tâm phòng, lát đối xứng ra biên",type:"process"},
+      {t:"Cào keo răng lược cả nền và gạch",d:"Cào keo 2 mặt (back-butter) đảm bảo bám dính 100%",type:"process"},
+      {t:"Lát, cân chỉnh",d:"Đặt gạch, gõ nhẹ, dùng thước kiểm tra phẳng",type:"process"},
+      {t:"Chít mạch, vệ sinh",d:"Chít ron sau 24h, lau sạch bề mặt",type:"process"}
+    ]},
+    { id:42, name:"Lát gạch granite nền 80x80", unit:"m²", time:"1 ngày/6–8m²", steps:[
+      {t:"Chuẩn bị nền phẳng",d:"Láng nền phẳng, xác định cao độ chính xác",type:"process"},
+      {t:"Trộn keo dán đặc biệt",d:"Dùng keo dán gạch lớn (large format), trộn đúng tỷ lệ",type:"process"},
+      {t:"Lát bằng giác hút",d:"Dùng giác hút gạch lớn, cào keo răng lược 2 mặt",type:"process"},
+      {t:"Cân chỉnh, hệ thống leveling",d:"Dùng ke cân bằng (leveling clips) đảm bảo phẳng tuyệt đối",type:"process"},
+      {t:"Chít mạch, nghiệm thu",d:"Chít ron, kiểm tra phẳng, bọng",type:"check"}
+    ]},
+    { id:43, name:"Ốp gạch tường vệ sinh", unit:"m²", time:"1 ngày/6–8m²", steps:[
+      {t:"Kiểm tra tường trát",d:"Đảm bảo tường phẳng, cứng, đã chống thấm chân tường",type:"check"},
+      {t:"Lấy mốc, căng dây",d:"Xác định hàng gạch đầu tiên (từ sàn lên), căng dây ngang",type:"process"},
+      {t:"Ốp gạch từ dưới lên",d:"Rải keo, ốp gạch từ hàng thấp nhất lên cao, dùng ke giữ mạch",type:"process"},
+      {t:"Cắt gạch tại vị trí ống, hộp",d:"Dùng máy cắt/khoét lỗ gạch tại vị trí ống nước, hộp điện",type:"process"},
+      {t:"Chít mạch, vệ sinh",d:"Chít ron chống ẩm mốc, lau sạch bề mặt",type:"process"}
+    ]},
+    { id:44, name:"Ốp gạch tường bếp", unit:"m²", time:"1 ngày/6–8m²", steps:[
+      {t:"Xác định phạm vi ốp",d:"Thông thường từ bệ bếp lên tủ treo, khoảng 60–70cm",type:"process"},
+      {t:"Chuẩn bị tường, keo",d:"Kiểm tra tường phẳng, trộn keo dán",type:"process"},
+      {t:"Ốp gạch, cân chỉnh",d:"Ốp theo hàng ngang, kiểm tra phẳng, thẳng",type:"process"},
+      {t:"Xử lý vị trí ổ cắm, hút mùi",d:"Cắt gạch tại vị trí ổ điện, ống hút mùi",type:"process"},
+      {t:"Chít mạch",d:"Chít ron, lau sạch",type:"process"}
+    ]},
+    { id:45, name:"Lát đá tự nhiên (granite, marble)", unit:"m²", time:"1 ngày/4–6m²", steps:[
+      {t:"Kiểm tra, phân loại đá",d:"Kiểm tra màu, vân đá, phân loại để bố trí hài hòa",type:"process"},
+      {t:"Chuẩn bị nền",d:"Láng nền phẳng, quét lớp lót tăng bám dính",type:"process"},
+      {t:"Trải vữa/keo, lát đá",d:"Trải vữa XM hoặc keo chuyên dụng, đặt đá, gõ nhẹ",type:"process"},
+      {t:"Kiểm tra phẳng, mạch",d:"Kiểm tra liên tục bằng thước, giữ mạch đều",type:"check"},
+      {t:"Chít mạch, đánh bóng",d:"Chít mạch bằng keo epoxy, đánh bóng bề mặt nếu cần",type:"process"}
+    ]},
+    { id:46, name:"Lát sàn gỗ công nghiệp", unit:"m²", time:"1 ngày/15–20m²", steps:[
+      {t:"Kiểm tra nền",d:"Nền phải phẳng (≤2mm/2m), khô (≤12% ẩm), sạch",type:"check"},
+      {t:"Trải lớp xốp lót",d:"Trải tấm xốp PE hoặc lớp lót cách ẩm phủ toàn bộ sàn",type:"process"},
+      {t:"Lát ván gỗ từ góc phòng",d:"Lát từ góc, mặt lưỡi hướng ra, chừa khe co giãn 8–10mm quanh tường",type:"process"},
+      {t:"Lắp khớp click/hèm",d:"Gài hèm ván, gõ nhẹ bằng búa cao su cho chặt khớp",type:"process"},
+      {t:"Lắp phào chân tường",d:"Lắp phào che khe co giãn quanh tường",type:"process"},
+      {t:"Vệ sinh",d:"Hút bụi, lau sạch sàn gỗ",type:"process"}
+    ]},
+    { id:47, name:"Lát sàn gỗ tự nhiên", unit:"m²", time:"1 ngày/8–10m²", steps:[
+      {t:"Kiểm tra nền, để gỗ thích nghi",d:"Nền phải khô, phẳng. Để gỗ trong phòng 3–5 ngày trước khi lát",type:"check"},
+      {t:"Lắp hệ xương sàn (nếu cần)",d:"Bắn tắc kê, lắp thanh xương gỗ/nhựa đệm",type:"process"},
+      {t:"Lát ván gỗ",d:"Đóng đinh/dán keo ván gỗ lên xương sàn, chừa khe co giãn",type:"process"},
+      {t:"Chà nhám bề mặt",d:"Chà nhám sàn bằng máy chà sàn (80, 120, 180 grit)",type:"process"},
+      {t:"Phủ sơn/dầu bảo vệ",d:"Phủ 2–3 lớp sơn PU hoặc dầu bảo vệ, chà nhám nhẹ giữa các lớp",type:"process"},
+      {t:"Lắp phào, vệ sinh",d:"Lắp phào chân tường, vệ sinh sàn",type:"process"}
+    ]},
+    { id:48, name:"Lát sàn nhựa vinyl/SPC", unit:"m²", time:"1 ngày/20–25m²", steps:[
+      {t:"Kiểm tra nền",d:"Nền phẳng, khô, sạch. Tự san phẳng nếu cần",type:"check"},
+      {t:"Trải lớp lót (SPC) hoặc bôi keo (vinyl dán)",d:"SPC: trải xốp lót. Vinyl: bôi keo dán chuyên dụng lên nền",type:"process"},
+      {t:"Lát tấm sàn",d:"Lát từ góc phòng, gài hèm click hoặc dán, chừa khe co giãn",type:"process"},
+      {t:"Cắt tấm biên",d:"Đo cắt tấm sát tường bằng dao rọc",type:"process"},
+      {t:"Lắp phào, vệ sinh",d:"Lắp phào chân tường, vệ sinh sàn",type:"process"}
+    ]},
+    { id:49, name:"Ốp đá mặt tiền", unit:"m²", time:"1 ngày/3–5m²", steps:[
+      {t:"Dựng giàn giáo",d:"Lắp giáo an toàn cho mặt tiền",type:"warn"},
+      {t:"Kiểm tra tường nền",d:"Tường trát phẳng, cứng, đủ chịu tải trọng đá",type:"check"},
+      {t:"Lắp ke inox/hệ giữ (đá nặng)",d:"Với đá nặng: khoan bắt ke inox chữ L/U giữ đá. Đá nhẹ: dùng keo",type:"process"},
+      {t:"Ốp đá từ dưới lên",d:"Ốp từ hàng dưới, kiểm tra thẳng đứng/ngang liên tục",type:"process"},
+      {t:"Chít mạch, vệ sinh",d:"Chít keo mạch chuyên dụng, vệ sinh bề mặt đá",type:"process"}
+    ]},
+    { id:50, name:"Ốp lamri gỗ/nhựa tường", unit:"m²", time:"1 ngày/10–12m²", steps:[
+      {t:"Lắp khung xương",d:"Bắn tắc kê, lắp thanh xương gỗ/thép nhẹ lên tường",type:"process"},
+      {t:"Cân chỉnh mặt phẳng xương",d:"Dùng thước/laser chỉnh phẳng hệ xương",type:"process"},
+      {t:"Ốp tấm lamri",d:"Gài hèm/bắn đinh/dán keo tấm lamri lên xương",type:"process"},
+      {t:"Lắp nẹp hoàn thiện",d:"Lắp nẹp góc, nẹp viền, nẹp kết thúc",type:"process"},
+      {t:"Vệ sinh",d:"Lau sạch bề mặt lamri",type:"process"}
+    ]}
+  ]},
+  { cat: "VI. CỬA", tasks: [
+    { id:51, name:"Lắp cửa đi nhôm kính", unit:"m²", time:"1–2 ngày/bộ", steps:[
+      {t:"Kiểm tra lỗ cửa",d:"Đo kích thước lỗ cửa, kiểm tra vuông, phẳng",type:"check"},
+      {t:"Lắp khuôn nhôm",d:"Đặt khuôn nhôm vào lỗ cửa, cân chỉnh thẳng đứng, ngang bằng",type:"process"},
+      {t:"Cố định khuôn",d:"Bắn tắc kê/vít cố định khuôn vào tường, chêm cân",type:"process"},
+      {t:"Lắp kính",d:"Đặt kính vào khuôn, chèn ron cao su, gắn nẹp giữ kính",type:"process"},
+      {t:"Lắp phụ kiện",d:"Lắp bản lề, khóa, tay nắm, thanh kéo",type:"process"},
+      {t:"Bơm keo/silicon",d:"Bơm keo silicon kín khe hở giữa khuôn và tường",type:"process"},
+      {t:"Kiểm tra vận hành",d:"Thử đóng mở, kiểm tra khóa, kín khít",type:"check"}
+    ]},
+    { id:52, name:"Lắp cửa sổ nhôm kính", unit:"m²", time:"0.5–1 ngày/bộ", steps:[
+      {t:"Kiểm tra lỗ cửa sổ",d:"Đo kích thước, kiểm tra cao độ bệ cửa, vuông góc",type:"check"},
+      {t:"Lắp khuôn nhôm, cân chỉnh",d:"Đặt khuôn, cân chỉnh bằng thước thủy, cố định tắc kê",type:"process"},
+      {t:"Lắp kính, ron",d:"Đặt kính, chèn ron cao su, nẹp giữ",type:"process"},
+      {t:"Lắp phụ kiện",d:"Lắp tay khóa, bản lề (cửa mở) hoặc ray trượt",type:"process"},
+      {t:"Bơm silicon, kiểm tra",d:"Bơm silicon kín mép, thử vận hành",type:"check"}
+    ]},
+    { id:53, name:"Lắp cửa đi gỗ", unit:"bộ", time:"1 ngày/bộ", steps:[
+      {t:"Lắp khuôn cửa",d:"Đặt khuôn gỗ vào lỗ cửa, cân chỉnh vuông, bắn tắc kê cố định",type:"process"},
+      {t:"Chêm, cố định khuôn",d:"Chêm nêm gỗ, bắn vít giữ khuôn chắc chắn",type:"process"},
+      {t:"Lắp bản lề",d:"Đục rãnh, bắn vít bản lề lên khuôn và cánh cửa",type:"process"},
+      {t:"Treo cánh cửa",d:"Gài cánh cửa vào bản lề, kiểm tra đóng mở",type:"process"},
+      {t:"Lắp khóa, tay nắm",d:"Khoét lỗ, lắp bộ khóa và tay nắm",type:"process"},
+      {t:"Lắp nẹp che, bơm keo",d:"Lắp nẹp che khe khuôn-tường, bơm silicon/PU lấp khe",type:"process"},
+      {t:"Kiểm tra",d:"Thử đóng mở, kiểm tra khe hở, khóa",type:"check"}
+    ]},
+    { id:54, name:"Lắp cửa cuốn", unit:"m²", time:"1 ngày/bộ", steps:[
+      {t:"Lắp ray dẫn hướng",d:"Bắn ray nhôm/thép 2 bên lỗ cửa, cân chỉnh thẳng đứng",type:"process"},
+      {t:"Lắp trục cuốn + motor",d:"Gắn trục cuốn phía trên, lắp motor (nếu tự động)",type:"process"},
+      {t:"Lắp nan cửa cuốn",d:"Gài nan cửa vào trục, luồn vào ray dẫn hướng",type:"process"},
+      {t:"Đấu nối điện (cửa tự động)",d:"Đấu dây motor, lắp hộp điều khiển, remote",type:"process"},
+      {t:"Kiểm tra vận hành",d:"Thử cuốn lên/hạ xuống, kiểm tra an toàn, khóa",type:"check"}
+    ]},
+    { id:55, name:"Thay kính cửa", unit:"m²", time:"1–2 giờ/tấm", steps:[
+      {t:"Tháo nẹp giữ kính cũ",d:"Gỡ nẹp nhôm/ron, tháo kính cũ ra cẩn thận",type:"process"},
+      {t:"Vệ sinh rãnh khuôn",d:"Làm sạch ron, keo cũ trong rãnh giữ kính",type:"process"},
+      {t:"Đặt kính mới",d:"Đặt kính mới vào rãnh, kiểm tra kích thước vừa khít",type:"process"},
+      {t:"Chèn ron, lắp nẹp",d:"Chèn ron cao su mới, gắn nẹp giữ kính",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra kín khít, an toàn",type:"check"}
+    ]},
+    { id:56, name:"Sửa chữa bản lề, khóa cửa", unit:"bộ", time:"0.5–1 giờ/bộ", steps:[
+      {t:"Kiểm tra hư hỏng",d:"Xác định bản lề lỏng/gãy, khóa kẹt/hỏng",type:"check"},
+      {t:"Tháo phụ kiện cũ",d:"Vặn vít tháo bản lề/khóa hỏng",type:"process"},
+      {t:"Xử lý lỗ vít (nếu lỏng)",d:"Nhét tăm/gỗ vào lỗ vít bị rộng, hoặc khoan lỗ mới",type:"process"},
+      {t:"Lắp phụ kiện mới",d:"Bắn vít lắp bản lề/khóa mới",type:"process"},
+      {t:"Kiểm tra vận hành",d:"Thử đóng mở, khóa mở nhiều lần",type:"check"}
+    ]},
+    { id:57, name:"Lắp cửa nhựa lõi thép uPVC", unit:"m²", time:"1–2 ngày/bộ", steps:[
+      {t:"Kiểm tra lỗ cửa",d:"Đo kích thước, kiểm tra vuông, phẳng",type:"check"},
+      {t:"Lắp khuôn uPVC",d:"Đặt khuôn vào lỗ cửa, cân chỉnh, bắn tắc kê",type:"process"},
+      {t:"Bọt PU lấp khe",d:"Phun bọt nở polyurethane lấp khe giữa khuôn và tường",type:"process"},
+      {t:"Lắp kính, ron",d:"Đặt kính hộp/đơn, chèn ron, gắn nẹp",type:"process"},
+      {t:"Lắp phụ kiện, kiểm tra",d:"Lắp tay khóa, bản lề, kiểm tra đóng mở",type:"check"}
+    ]},
+    { id:58, name:"Lắp lan can kính/inox", unit:"md", time:"1–2 ngày/5md", steps:[
+      {t:"Khoan lỗ/chôn bu lông chờ",d:"Khoan lỗ trên sàn/tường, đặt bu lông nở/chờ",type:"process"},
+      {t:"Lắp trụ đỡ",d:"Bắt trụ inox/chân kẹp kính vào bu lông, cân chỉnh thẳng đứng",type:"process"},
+      {t:"Lắp kính/thanh ngang",d:"Đặt kính cường lực vào chân kẹp hoặc lắp thanh inox ngang",type:"process"},
+      {t:"Lắp tay vịn",d:"Gắn tay vịn inox/gỗ lên trên trụ",type:"process"},
+      {t:"Bơm keo, kiểm tra",d:"Bơm silicon kín chân kính, kiểm tra chắc chắn, an toàn",type:"check"}
+    ]}
+  ]},
+  { cat: "VII. ĐIỆN", tasks: [
+    { id:59, name:"Đi dây điện âm tường", unit:"md", time:"8–15 md/ngày", steps:[
+      {t:"Lập sơ đồ tuyến dây",d:"Vẽ sơ đồ đi dây theo bản vẽ điện, xác định tuyến ống",type:"process"},
+      {t:"Đục rãnh tường",d:"Đục rãnh theo tuyến đã vạch (xem CT số 9)",type:"process"},
+      {t:"Luồn ống PVC",d:"Đặt ống luồn dây PVC D16–D20 vào rãnh, cố định bằng kẹp",type:"process"},
+      {t:"Kéo dây điện qua ống",d:"Luồn dây điện (đơn/đôi/3 pha) qua ống PVC",type:"process"},
+      {t:"Trám rãnh",d:"Trám vữa XM lấp kín rãnh",type:"process"},
+      {t:"Kiểm tra thông mạch",d:"Đo thông mạch, đo cách điện bằng đồng hồ",type:"check"}
+    ]},
+    { id:60, name:"Lắp đặt bảng điện/tủ điện", unit:"bộ", time:"0.5–1 ngày/bộ", steps:[
+      {t:"Xác định vị trí lắp",d:"Chọn vị trí thuận tiện, khô ráo, đúng cao độ",type:"process"},
+      {t:"Cố định tủ/bảng điện lên tường",d:"Khoan tắc kê, bắt vít cố định tủ điện",type:"process"},
+      {t:"Lắp CB, thiết bị vào tủ",d:"Lắp CB tổng, CB nhánh, RCCB/RCBO, thanh cái",type:"process"},
+      {t:"Đấu nối dây",d:"Đấu dây nguồn vào, dây tải ra các nhánh theo sơ đồ",type:"process"},
+      {t:"Dán nhãn, kiểm tra",d:"Dán nhãn tên nhánh lên CB, kiểm tra đấu nối, thử tải",type:"check"}
+    ]},
+    { id:61, name:"Lắp đặt ổ cắm, công tắc", unit:"bộ", time:"15–20 phút/bộ", steps:[
+      {t:"Lắp đế âm tường",d:"Gắn đế nhựa/hộp nổi vào vị trí đã chừa sẵn",type:"process"},
+      {t:"Đấu nối dây",d:"Đấu dây pha, trung tính, tiếp địa vào ổ cắm/công tắc",type:"process"},
+      {t:"Lắp mặt nạ",d:"Gắn module ổ cắm/công tắc vào mặt nạ, bắt vít",type:"process"},
+      {t:"Kiểm tra",d:"Thử ổ cắm bằng bút thử điện, thử công tắc bật/tắt",type:"check"}
+    ]},
+    { id:62, name:"Lắp đặt đèn chiếu sáng", unit:"bộ", time:"15–30 phút/bộ", steps:[
+      {t:"Xác định vị trí đèn",d:"Theo bản vẽ chiếu sáng, đánh dấu vị trí trên trần/tường",type:"process"},
+      {t:"Lắp đế/giá treo đèn",d:"Khoan tắc kê, bắt đế đèn hoặc móc treo",type:"process"},
+      {t:"Đấu nối dây",d:"Nối dây nguồn vào đui/driver đèn, cách điện kỹ",type:"process"},
+      {t:"Gắn đèn, thử sáng",d:"Lắp bóng/chụp đèn, bật thử kiểm tra sáng đều",type:"check"}
+    ]},
+    { id:63, name:"Lắp đặt đèn LED âm trần", unit:"bộ", time:"15–20 phút/bộ", steps:[
+      {t:"Khoét lỗ trần thạch cao",d:"Dùng khoét lỗ đúng đường kính đèn (φ60–φ150mm)",type:"process"},
+      {t:"Luồn dây, đấu nối",d:"Kéo dây từ hộp nối, đấu vào driver/đui đèn",type:"process"},
+      {t:"Gài đèn vào lỗ",d:"Bóp lò xo kẹp, gài đèn vào lỗ trần",type:"process"},
+      {t:"Thử sáng",d:"Bật CB, kiểm tra đèn sáng đều, không nhấp nháy",type:"check"}
+    ]},
+    { id:64, name:"Lắp quạt trần", unit:"bộ", time:"0.5–1 giờ/bộ", steps:[
+      {t:"Kiểm tra móc treo trần",d:"Đảm bảo có móc chịu lực ≥15kg trên trần BT",type:"check"},
+      {t:"Lắp đế quạt",d:"Bắt đế quạt vào móc treo, cố định chắc chắn",type:"process"},
+      {t:"Lắp ráp thân, cánh quạt",d:"Gắn thân motor, lắp cánh quạt đều",type:"process"},
+      {t:"Đấu nối điện",d:"Đấu dây pha, trung tính, tiếp địa",type:"process"},
+      {t:"Kiểm tra vận hành",d:"Bật quạt, kiểm tra các tốc độ, tiếng ồn, rung lắc",type:"check"}
+    ]},
+    { id:65, name:"Kéo dây mạng/điện thoại/TH", unit:"md", time:"10–20 md/ngày", steps:[
+      {t:"Lập sơ đồ tuyến dây",d:"Xác định tuyến dây mạng/TV từ tủ phân phối đến các điểm",type:"process"},
+      {t:"Luồn ống, kéo dây",d:"Luồn dây CAT5e/6 qua ống PVC đã đặt sẵn hoặc máng cáp",type:"process"},
+      {t:"Bấm đầu nối RJ45/F",d:"Bấm đầu RJ45 (mạng) hoặc đầu F (truyền hình) theo chuẩn",type:"process"},
+      {t:"Lắp ổ mạng/TV âm tường",d:"Gắn module mạng/TV vào mặt nạ âm tường",type:"process"},
+      {t:"Kiểm tra tín hiệu",d:"Test đường truyền bằng tester, kiểm tra tốc độ/tín hiệu",type:"check"}
+    ]},
+    { id:66, name:"Lắp hệ thống chống sét", unit:"bộ", time:"1–2 ngày", steps:[
+      {t:"Khảo sát, thiết kế",d:"Đánh giá vị trí lắp kim thu sét, tuyến dây xuống, hệ tiếp địa",type:"process"},
+      {t:"Lắp kim thu sét",d:"Lắp kim thu sét trên nóc nhà/cột cao nhất",type:"process"},
+      {t:"Kéo dây dẫn sét",d:"Kéo dây đồng trần/cáp đồng bọc từ kim xuống đất, cố định bằng kẹp",type:"process"},
+      {t:"Thi công hệ tiếp địa",d:"Đóng cọc tiếp địa, hàn hóa nhiệt liên kết cọc-dây",type:"process"},
+      {t:"Đo điện trở tiếp địa",d:"Đo điện trở ≤10Ω (nhà dân). Bổ sung cọc/hóa chất giảm điện trở nếu cần",type:"check"}
+    ]}
+  ]},
+  { cat: "VIII. CẤP THOÁT NƯỚC", tasks: [
+    { id:67, name:"Đi ống cấp nước nóng lạnh", unit:"md", time:"5–10 md/ngày", steps:[
+      {t:"Lập sơ đồ đường ống",d:"Vẽ tuyến ống cấp nóng/lạnh theo bản vẽ, xác định kích cỡ ống",type:"process"},
+      {t:"Đục rãnh/đi ống",d:"Đục rãnh tường hoặc đi ống trên trần/trong hộp gen",type:"process"},
+      {t:"Hàn/nối ống PPR hoặc bắt ống inox",d:"Hàn nhiệt ống PPR hoặc bắt ren ống inox tại các mối nối",type:"process"},
+      {t:"Bọc cách nhiệt ống nóng",d:"Bọc ống nóng bằng mút cách nhiệt PE",type:"process"},
+      {t:"Thử áp lực",d:"Bơm nước, thử áp 6–8 bar trong 30 phút, kiểm tra rò rỉ",type:"check"},
+      {t:"Trám rãnh, hoàn thiện",d:"Trám rãnh tường, ghi lại sơ đồ as-built",type:"process"}
+    ]},
+    { id:68, name:"Đi ống thoát nước sàn vệ sinh", unit:"md", time:"5–8 md/ngày", steps:[
+      {t:"Lập sơ đồ ống thoát",d:"Xác định vị trí bồn cầu, lavabo, phễu thu, tuyến ống thoát",type:"process"},
+      {t:"Lắp đặt ống PVC",d:"Lắp ống PVC D60–D114 đúng độ dốc (≥2%), nối co, tê",type:"process"},
+      {t:"Lắp phễu thu sàn",d:"Đặt phễu thu sàn đúng vị trí, cao độ",type:"process"},
+      {t:"Kiểm tra độ dốc, thông thoát",d:"Đổ nước thử, kiểm tra thoát nhanh, không ứ đọng",type:"check"},
+      {t:"Bọc ống, hoàn thiện",d:"Đổ BT bọc ống hoặc giấu trong hộp gen",type:"process"}
+    ]},
+    { id:69, name:"Lắp đặt bồn cầu", unit:"bộ", time:"1–2 giờ/bộ", steps:[
+      {t:"Kiểm tra ống thoát chờ",d:"Kiểm tra vị trí, kích cỡ cổ ống thoát đúng với bồn cầu",type:"check"},
+      {t:"Lắp gioăng/co nối",d:"Đặt gioăng sáp/cao su hoặc co nối lên cổ ống thoát",type:"process"},
+      {t:"Đặt bồn cầu lên vị trí",d:"Đặt bồn cầu, căn chỉnh đúng tim ống, ấn chặt",type:"process"},
+      {t:"Cố định bồn cầu",d:"Bắn vít/bu lông cố định chân bồn cầu xuống sàn",type:"process"},
+      {t:"Đấu nối cấp nước",d:"Nối ống mềm từ van cấp nước vào bồn cầu",type:"process"},
+      {t:"Thử xả nước",d:"Xả nước thử, kiểm tra không rò rỉ tại chân bồn và mối nối",type:"check"}
+    ]},
+    { id:70, name:"Lắp đặt lavabo, chậu rửa", unit:"bộ", time:"1–2 giờ/bộ", steps:[
+      {t:"Xác định cao độ lắp",d:"Đánh dấu cao độ mặt lavabo (thường 80–85cm từ sàn)",type:"process"},
+      {t:"Lắp giá đỡ/chân đế",d:"Bắt giá treo tường hoặc lắp chân trụ/tủ chậu",type:"process"},
+      {t:"Đặt chậu, lắp vòi",d:"Đặt chậu lên giá, lắp vòi nước, gắn xi phông thoát",type:"process"},
+      {t:"Đấu nối cấp, thoát",d:"Nối ống mềm cấp nước nóng/lạnh, nối xi phông vào ống thoát",type:"process"},
+      {t:"Bơm silicon, thử nước",d:"Bơm silicon viền chậu-tường, mở nước kiểm tra rò rỉ",type:"check"}
+    ]},
+    { id:71, name:"Lắp sen tắm, vòi nước", unit:"bộ", time:"0.5–1 giờ/bộ", steps:[
+      {t:"Kiểm tra đầu ống chờ",d:"Kiểm tra vị trí, khoảng cách ống chờ nóng/lạnh",type:"check"},
+      {t:"Lắp co ren, phối trộn",d:"Bắt co ren vào ống chờ, lắp thân phối trộn nóng lạnh",type:"process"},
+      {t:"Lắp bộ sen",d:"Lắp thanh treo, vòi sen, dây sen",type:"process"},
+      {t:"Thử nước",d:"Mở nước, kiểm tra rò rỉ, điều chỉnh nóng/lạnh",type:"check"}
+    ]},
+    { id:72, name:"Lắp đặt bồn tắm", unit:"bộ", time:"0.5–1 ngày", steps:[
+      {t:"Chuẩn bị vị trí",d:"Kiểm tra sàn chịu tải, vị trí ống cấp/thoát",type:"check"},
+      {t:"Lắp khung đỡ bồn",d:"Lắp chân/khung đỡ, cân chỉnh cao độ, đảm bảo độ dốc thoát",type:"process"},
+      {t:"Đặt bồn, nối ống thoát",d:"Đặt bồn lên khung, lắp xi phông thoát, nối ống thoát",type:"process"},
+      {t:"Lắp vòi, sen",d:"Lắp bộ vòi phối trộn, sen tay",type:"process"},
+      {t:"Ốp bệ bồn (nếu có)",d:"Xây/ốp gạch bao quanh bồn tắm",type:"process"},
+      {t:"Thử nước, kiểm tra",d:"Đổ nước đầy, kiểm tra xả, rò rỉ",type:"check"}
+    ]},
+    { id:73, name:"Lắp bơm tăng áp", unit:"bộ", time:"1–2 giờ", steps:[
+      {t:"Chọn vị trí lắp bơm",d:"Gần nguồn nước, thoáng khí, dễ bảo trì",type:"process"},
+      {t:"Lắp bơm vào đường ống",d:"Cắt ống, lắp bơm đúng chiều mũi tên lưu lượng",type:"process"},
+      {t:"Lắp van, khớp nối",d:"Lắp van một chiều, khớp nối giảm rung 2 đầu bơm",type:"process"},
+      {t:"Đấu điện",d:"Đấu nối điện cho bơm, lắp CB riêng",type:"process"},
+      {t:"Thử vận hành",d:"Mở nước, kiểm tra áp lực, tiếng ồn, rò rỉ",type:"check"}
+    ]},
+    { id:74, name:"Lắp bình nóng lạnh", unit:"bộ", time:"1–2 giờ", steps:[
+      {t:"Chọn vị trí, khoan lắp giá treo",d:"Vị trí gần điểm sử dụng, tường BT chịu lực. Lắp giá/vít nở",type:"process"},
+      {t:"Treo bình nóng lạnh",d:"Treo bình lên giá, kiểm tra chắc chắn",type:"process"},
+      {t:"Đấu nối ống nước",d:"Nối ống cấp lạnh vào, ống nóng ra. Lắp van an toàn",type:"process"},
+      {t:"Đấu nối điện",d:"Đấu dây điện, lắp CB riêng, RCCB chống giật",type:"warn"},
+      {t:"Thử vận hành",d:"Xả đầy nước, bật điện, kiểm tra nóng, rò rỉ",type:"check"}
+    ]},
+    { id:75, name:"Lắp đặt/sửa bể nước mái", unit:"bộ", time:"0.5–1 ngày", steps:[
+      {t:"Kiểm tra/xây đế bể",d:"Kiểm tra sàn mái chịu tải, xây bệ đế bể nếu cần",type:"process"},
+      {t:"Đặt bồn inox/nhựa",d:"Cẩu/đưa bồn lên vị trí, cố định chắc chắn",type:"process"},
+      {t:"Đấu nối ống cấp, thoát, xả tràn",d:"Nối ống cấp (phao), ống ra, ống xả tràn, ống xả đáy",type:"process"},
+      {t:"Lắp phao tự động",d:"Lắp phao cơ hoặc phao điện điều khiển bơm",type:"process"},
+      {t:"Thử vận hành",d:"Bơm nước đầy, kiểm tra phao, rò rỉ, xả tràn",type:"check"}
+    ]},
+    { id:76, name:"Thông tắc đường ống thoát", unit:"lần", time:"1–3 giờ", steps:[
+      {t:"Xác định vị trí tắc",d:"Kiểm tra các điểm: phễu thu, co, tê, bể phốt",type:"check"},
+      {t:"Thông bằng dây lò xo",d:"Dùng dây lò xo xoay luồn vào ống thông chỗ tắc",type:"process"},
+      {t:"Xịt áp lực nước (nếu cần)",d:"Dùng máy phun áp lực cao bơm nước thông ống",type:"process"},
+      {t:"Đổ hóa chất (nếu cần)",d:"Đổ dung dịch thông tắc hòa tan cặn dầu mỡ",type:"process"},
+      {t:"Kiểm tra lưu lượng",d:"Đổ nước thử, đảm bảo thoát nhanh, hết tắc",type:"check"}
+    ]}
+  ]},
+  { cat: "IX. TRẦN – VÁCH NGĂN", tasks: [
+    { id:77, name:"Làm trần thạch cao phẳng", unit:"m²", time:"1 ngày/15–20m²", steps:[
+      {t:"Lấy mốc cao độ trần",d:"Dùng laser xác định cao độ trần hoàn thiện, đánh dấu tường",type:"process"},
+      {t:"Lắp thanh viền tường",d:"Bắn tắc kê thanh viền (wall angle) quanh tường theo cao độ",type:"process"},
+      {t:"Lắp ty treo",d:"Khoan tắc kê trần BT, bắt ty ren treo theo lưới 600–900mm",type:"process"},
+      {t:"Lắp khung xương chính + phụ",d:"Gắn thanh chính vào ty treo, lắp thanh phụ vuông góc tạo ô 400–600mm",type:"process"},
+      {t:"Bắn tấm thạch cao",d:"Bắn vít tấm thạch cao lên khung xương, cách mép 10mm",type:"process"},
+      {t:"Xử lý mối nối",d:"Dán băng giấy + bả matit mối nối giữa các tấm",type:"process"},
+      {t:"Kiểm tra phẳng",d:"Kiểm tra mặt trần phẳng, sẵn sàng cho sơn/bả",type:"check"}
+    ]},
+    { id:78, name:"Làm trần thạch cao giật cấp", unit:"m²", time:"1 ngày/8–12m²", steps:[
+      {t:"Thiết kế hình dáng giật cấp",d:"Vẽ chi tiết các cấp, kích thước, vị trí đèn hắt",type:"process"},
+      {t:"Lắp khung xương cấp 1 (cao)",d:"Lắp ty treo, khung xương cho mặt trần cấp cao nhất",type:"process"},
+      {t:"Bắn tấm cấp 1",d:"Bắn tấm thạch cao mặt trần cấp 1",type:"process"},
+      {t:"Tạo hệ khung cấp 2 (thấp hơn)",d:"Lắp khung xương thòng xuống tạo bậc giật cấp",type:"process"},
+      {t:"Bắn tấm cấp 2 + thành cấp",d:"Bắn tấm mặt dưới và tấm thành đứng tạo bậc",type:"process"},
+      {t:"Xử lý mối nối, góc",d:"Bả matit, dán băng giấy tất cả mối nối, góc",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra hình dáng, kích thước, phẳng, đúng thiết kế",type:"check"}
+    ]},
+    { id:79, name:"Làm vách ngăn thạch cao", unit:"m²", time:"1 ngày/10–12m²", steps:[
+      {t:"Lấy dấu vị trí vách",d:"Vạch tuyến vách trên sàn, tường, trần bằng laser",type:"process"},
+      {t:"Lắp thanh U trên/dưới",d:"Bắn tắc kê thanh U trần và sàn theo tuyến vạch",type:"process"},
+      {t:"Lắp thanh C đứng",d:"Gài thanh C đứng vào thanh U, khoảng cách 400–600mm",type:"process"},
+      {t:"Bắn tấm thạch cao mặt 1",d:"Bắn vít tấm thạch cao một mặt vách",type:"process"},
+      {t:"Đặt bông cách âm (nếu có)",d:"Nhồi bông khoáng cách âm vào khoang giữa 2 mặt vách",type:"process"},
+      {t:"Bắn tấm mặt 2",d:"Bắn tấm thạch cao mặt còn lại",type:"process"},
+      {t:"Xử lý mối nối",d:"Bả matit, dán băng giấy các mối nối, sẵn sàng sơn",type:"process"}
+    ]},
+    { id:80, name:"Làm vách ngăn nhôm kính", unit:"m²", time:"1 ngày/6–8m²", steps:[
+      {t:"Lấy dấu vị trí",d:"Xác định tuyến vách trên sàn, trần",type:"process"},
+      {t:"Lắp ray trên/dưới",d:"Bắn tắc kê ray nhôm U trên trần và sàn",type:"process"},
+      {t:"Lắp khung nhôm đứng, ngang",d:"Gắn các thanh nhôm đứng và ngang tạo ô kính",type:"process"},
+      {t:"Lắp kính",d:"Đặt kính vào ô, chèn ron cao su, gắn nẹp giữ",type:"process"},
+      {t:"Lắp cửa (nếu có)",d:"Lắp cánh cửa, bản lề, khóa, tay nắm",type:"process"},
+      {t:"Bơm silicon, kiểm tra",d:"Bơm silicon kín mép, kiểm tra chắc chắn, vận hành cửa",type:"check"}
+    ]},
+    { id:81, name:"Sơn trần", unit:"m²", time:"1 ngày/50m²", steps:[
+      {t:"Chuẩn bị bề mặt trần",d:"Bả matit, chà nhám mịn bề mặt trần (xem CT 27–28)",type:"process"},
+      {t:"Sơn lót",d:"Lăn/phun 1 lớp sơn lót, đợi khô 2–4h",type:"process"},
+      {t:"Sơn phủ 2 lớp",d:"Lăn/phun 2 lớp sơn phủ trắng/màu, mỗi lớp cách 2–4h",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra độ phủ đều, không vết lăn, giọt sơn",type:"check"}
+    ]},
+    { id:82, name:"Dán giấy dán tường", unit:"m²", time:"1 ngày/20m²", steps:[
+      {t:"Chuẩn bị tường",d:"Bề mặt phải bả matit phẳng, sơn lót, khô ráo",type:"check"},
+      {t:"Cắt giấy theo khổ",d:"Đo chiều cao tường, cắt giấy dài hơn 5cm, chú ý canh hoa văn",type:"process"},
+      {t:"Quét keo",d:"Quét keo dán lên tường (hoặc mặt sau giấy tùy loại)",type:"process"},
+      {t:"Dán giấy từ trên xuống",d:"Dán từ trên, dùng bàn chải/con lăn ép phẳng, đuổi bọt khí",type:"process"},
+      {t:"Cắt viền, xử lý mối nối",d:"Cắt bỏ phần thừa trên/dưới, ép mối nối giữa các tấm",type:"process"},
+      {t:"Vệ sinh",d:"Lau sạch keo thừa trên bề mặt giấy",type:"process"}
+    ]}
+  ]},
+  { cat: "X. MÁI – TÔN", tasks: [
+    { id:83, name:"Lợp mái tôn mới", unit:"m²", time:"1 ngày/30–40m²", steps:[
+      {t:"Kiểm tra khung mái",d:"Kiểm tra xà gồ, cầu phong đủ chịu lực, đúng khoảng cách",type:"check"},
+      {t:"Trải tôn từ mái dưới lên",d:"Đặt tôn từ mép dưới lên nóc, chồng mí ≥15cm",type:"process"},
+      {t:"Bắn vít tôn",d:"Bắn vít tôn vào xà gồ tại đỉnh sóng, khoảng cách đều",type:"process"},
+      {t:"Lắp nóc, diềm mái",d:"Gắn tôn nóc (nok), diềm mái che kín đầu tôn",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra kín nước, vít đủ chặt, tôn không bị cong vênh",type:"check"}
+    ]},
+    { id:84, name:"Thay thế tôn cũ, dột", unit:"m²", time:"1 ngày/20–30m²", steps:[
+      {t:"Xác định tôn hỏng",d:"Kiểm tra vị trí dột, tôn thủng/rỉ sét",type:"check"},
+      {t:"Tháo tôn cũ",d:"Tháo vít, nhấc tôn cũ ra cẩn thận",type:"process"},
+      {t:"Kiểm tra xà gồ",d:"Kiểm tra xà gồ bên dưới có bị rỉ/mục không",type:"check"},
+      {t:"Lợp tôn mới thay thế",d:"Đặt tôn mới, chồng mí đúng, bắn vít",type:"process"},
+      {t:"Kiểm tra kín nước",d:"Tưới nước thử hoặc chờ mưa kiểm tra",type:"check"}
+    ]},
+    { id:85, name:"Làm khung thép mái", unit:"kg", time:"2–5 ngày/100m²", steps:[
+      {t:"Gia công thép tại xưởng",d:"Cắt, hàn khung kèo, xà gồ, giằng theo bản vẽ",type:"process"},
+      {t:"Sơn chống rỉ",d:"Sơn 2 lớp sơn chống rỉ toàn bộ khung thép",type:"process"},
+      {t:"Vận chuyển đến công trình",d:"Vận chuyển, cẩu lắp lên vị trí",type:"process"},
+      {t:"Lắp dựng khung kèo",d:"Dựng kèo thép, liên kết bu lông vào cột/tường. Cân chỉnh",type:"process"},
+      {t:"Lắp xà gồ, giằng",d:"Bắn vít xà gồ lên kèo, lắp giằng chéo chống gió",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra liên kết, cân bằng, chống gió",type:"check"}
+    ]},
+    { id:86, name:"Lắp máng xối, ống thoát nước mái", unit:"md", time:"0.5–1 ngày/10md", steps:[
+      {t:"Xác định tuyến máng, ống",d:"Tính toán vị trí máng, ống xuống, đảm bảo độ dốc",type:"process"},
+      {t:"Lắp giá đỡ máng",d:"Bắn kẹp giá đỡ máng vào mép mái, đảm bảo dốc về phía ống xuống",type:"process"},
+      {t:"Đặt máng xối",d:"Đặt máng tôn/nhựa/inox lên giá đỡ, nối các đoạn kín",type:"process"},
+      {t:"Lắp ống xuống",d:"Lắp ống thoát nước đứng, kẹp vào tường, nối vào cống thoát",type:"process"},
+      {t:"Thử nước",d:"Đổ nước vào máng, kiểm tra thoát, không rò rỉ",type:"check"}
+    ]},
+    { id:87, name:"Lắp mái kính, giếng trời", unit:"m²", time:"2–3 ngày", steps:[
+      {t:"Gia công khung thép/nhôm",d:"Hàn/lắp khung đỡ mái kính theo thiết kế, sơn chống rỉ",type:"process"},
+      {t:"Lắp dựng khung lên vị trí",d:"Cẩu/lắp khung lên lỗ mở trần/mái, cố định chắc chắn",type:"process"},
+      {t:"Lắp kính cường lực/dán an toàn",d:"Đặt kính lên khung, chèn ron EPDM/silicon kín nước",type:"process"},
+      {t:"Bơm silicon, chống thấm",d:"Bơm silicon kín toàn bộ mép kính, mối nối khung",type:"process"},
+      {t:"Thử nước, kiểm tra",d:"Xịt nước thử, kiểm tra không dột, không đọng nước",type:"check"}
+    ]},
+    { id:88, name:"Sửa chữa mái ngói", unit:"m²", time:"1 ngày/15–20m²", steps:[
+      {t:"Kiểm tra vị trí hỏng",d:"Leo lên mái, xác định ngói vỡ, xê dịch, li tô hỏng",type:"check"},
+      {t:"Tháo ngói hỏng",d:"Nhấc ngói vỡ, cẩn thận không làm vỡ ngói lân cận",type:"process"},
+      {t:"Sửa li tô, cầu phong (nếu cần)",d:"Thay thế thanh li tô/cầu phong bị mục, gãy",type:"process"},
+      {t:"Lợp ngói mới",d:"Đặt ngói mới thay thế, kiểm tra chồng mí đúng",type:"process"},
+      {t:"Kiểm tra tổng thể",d:"Kiểm tra toàn bộ mái, chỉnh ngói xô lệch",type:"check"}
+    ]}
+  ]},
+  { cat: "XI. SẮT THÉP – KIM LOẠI", tasks: [
+    { id:89, name:"Hàn khung cửa sắt", unit:"m²", time:"1 ngày/5–8m²", steps:[
+      {t:"Đo kích thước lỗ cửa",d:"Đo chính xác lỗ cửa, vẽ bản vẽ chi tiết",type:"process"},
+      {t:"Gia công tại xưởng",d:"Cắt thép hộp, hàn khung, cánh cửa theo bản vẽ",type:"process"},
+      {t:"Mài nhẵn mối hàn",d:"Mài phẳng các mối hàn, bo góc",type:"process"},
+      {t:"Sơn chống rỉ + sơn phủ",d:"Sơn 1 lớp chống rỉ + 2 lớp sơn phủ màu",type:"process"},
+      {t:"Lắp đặt tại công trình",d:"Đặt khung vào lỗ cửa, hàn/bắt tắc kê cố định",type:"process"},
+      {t:"Lắp phụ kiện, kiểm tra",d:"Lắp bản lề, khóa, tay nắm. Thử đóng mở",type:"check"}
+    ]},
+    { id:90, name:"Làm cầu thang sắt", unit:"bậc", time:"3–5 ngày/bộ", steps:[
+      {t:"Đo, thiết kế",d:"Đo chiều cao tầng, tính số bậc, vẽ bản vẽ chi tiết",type:"process"},
+      {t:"Gia công tại xưởng",d:"Cắt, hàn 2 cốn thang, bậc, chiếu nghỉ bằng thép hộp",type:"process"},
+      {t:"Sơn chống rỉ",d:"Sơn chống rỉ toàn bộ kết cấu tại xưởng",type:"process"},
+      {t:"Lắp dựng tại công trình",d:"Cẩu/khiêng cầu thang vào vị trí, hàn/bắt bu lông cố định",type:"process"},
+      {t:"Lắp mặt bậc",d:"Lắp mặt bậc gỗ/đá/kính lên khung sắt",type:"process"},
+      {t:"Lắp lan can, tay vịn",d:"Hàn/bắt lan can, lắp tay vịn gỗ/inox",type:"process"},
+      {t:"Sơn hoàn thiện, kiểm tra",d:"Sơn phủ hoàn thiện, kiểm tra chắc chắn",type:"check"}
+    ]},
+    { id:91, name:"Lắp lan can sắt/inox", unit:"md", time:"1–2 ngày/5md", steps:[
+      {t:"Đo, vẽ thiết kế",d:"Đo chiều dài, cao độ. Vẽ mẫu lan can",type:"process"},
+      {t:"Gia công tại xưởng",d:"Cắt, uốn, hàn các đoạn lan can theo mẫu",type:"process"},
+      {t:"Khoan, chôn chân trụ",d:"Khoan lỗ sàn/tường, chôn chân trụ bằng hóa chất/bu lông nở",type:"process"},
+      {t:"Lắp dựng lan can",d:"Hàn/bắt vít lan can vào chân trụ, cân chỉnh",type:"process"},
+      {t:"Lắp tay vịn, hoàn thiện",d:"Gắn tay vịn, mài nhẵn mối hàn, sơn/đánh bóng",type:"process"},
+      {t:"Kiểm tra an toàn",d:"Kiểm tra chắc chắn, khoảng cách thanh chấn song (≤10cm)",type:"check"}
+    ]},
+    { id:92, name:"Sơn chống rỉ kết cấu thép", unit:"m²", time:"1 ngày/30–40m²", steps:[
+      {t:"Làm sạch bề mặt thép",d:"Dùng bàn chải sắt/máy mài/phun cát làm sạch rỉ sét, sơn cũ",type:"process"},
+      {t:"Sơn lớp chống rỉ 1",d:"Quét/phun 1 lớp sơn chống rỉ (đỏ/xám), chờ khô 4h",type:"process"},
+      {t:"Sơn lớp chống rỉ 2",d:"Quét/phun lớp chống rỉ thứ 2",type:"process"},
+      {t:"Sơn phủ hoàn thiện",d:"Sơn 1–2 lớp sơn phủ màu, chờ khô giữa các lớp",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra độ phủ, bám dính, đo độ dày màng sơn",type:"check"}
+    ]},
+    { id:93, name:"Làm giàn phơi đồ inox/thép", unit:"bộ", time:"0.5–1 ngày", steps:[
+      {t:"Khảo sát, chọn loại giàn",d:"Đo vị trí lắp, chọn giàn cố định/nâng hạ/di động",type:"process"},
+      {t:"Khoan lỗ lắp giá",d:"Khoan tắc kê vào trần/tường, bắt giá đỡ/hệ ròng rọc",type:"process"},
+      {t:"Lắp thanh phơi, dây cáp",d:"Gắn thanh phơi inox/nhôm, luồn dây cáp, lắp tay quay",type:"process"},
+      {t:"Kiểm tra vận hành",d:"Thử nâng hạ, kiểm tra tải trọng chịu được",type:"check"}
+    ]}
+  ]},
+  { cat: "XII. HẠ TẦNG KỸ THUẬT & KHÁC", tasks: [
+    { id:94, name:"Lắp đặt điều hòa", unit:"bộ", time:"0.5–1 ngày/bộ", steps:[
+      {t:"Chọn vị trí cục lạnh/nóng",d:"Xác định vị trí treo cục lạnh trong nhà, cục nóng ngoài trời",type:"process"},
+      {t:"Lắp giá treo cục lạnh",d:"Bắn tắc kê, lắp giá treo, cân bằng",type:"process"},
+      {t:"Lắp giá đỡ cục nóng",d:"Lắp giá/chân đỡ cục nóng ngoài trời",type:"process"},
+      {t:"Kéo ống đồng, ống thoát nước ngưng",d:"Luồn ống đồng gas + ống thoát nước ngưng từ cục lạnh ra cục nóng",type:"process"},
+      {t:"Đấu nối, nạp gas",d:"Đấu ống đồng, hút chân không, nạp gas (nếu cần)",type:"process"},
+      {t:"Đấu điện",d:"Đấu nối điện nguồn, lắp CB riêng cho điều hòa",type:"process"},
+      {t:"Kiểm tra vận hành",d:"Bật máy, kiểm tra làm lạnh/sưởi, thoát nước ngưng, tiếng ồn",type:"check"}
+    ]},
+    { id:95, name:"Lắp hệ thống camera an ninh", unit:"bộ", time:"1–2 ngày", steps:[
+      {t:"Khảo sát, lập vị trí camera",d:"Xác định các góc cần giám sát, vị trí lắp camera",type:"process"},
+      {t:"Kéo dây tín hiệu/nguồn",d:"Kéo cáp mạng/đồng trục từ đầu ghi đến vị trí camera",type:"process"},
+      {t:"Lắp camera",d:"Bắn tắc kê, gắn camera đúng hướng, điều chỉnh góc nhìn",type:"process"},
+      {t:"Lắp đầu ghi, ổ cứng",d:"Lắp đặt đầu ghi hình, gắn ổ cứng lưu trữ",type:"process"},
+      {t:"Đấu nối, cài đặt",d:"Đấu dây, cài đặt phần mềm, cấu hình mạng xem từ xa",type:"process"},
+      {t:"Kiểm tra toàn hệ thống",d:"Kiểm tra hình ảnh tất cả camera, ghi hình, xem lại",type:"check"}
+    ]},
+    { id:96, name:"Lắp khóa điện tử, chuông cửa", unit:"bộ", time:"1–2 giờ/bộ", steps:[
+      {t:"Đo, khoét lỗ cửa",d:"Đo kích thước, khoét lỗ trên cánh cửa theo khuôn gá",type:"process"},
+      {t:"Lắp thân khóa",d:"Gắn thân khóa vào lỗ, bắt vít cố định 2 mặt",type:"process"},
+      {t:"Đấu nối điện (nếu có dây)",d:"Đấu dây nguồn adapter, dây chuông",type:"process"},
+      {t:"Cài đặt mã/vân tay/thẻ",d:"Cài đặt mã PIN, đăng ký vân tay, thẻ từ cho người dùng",type:"process"},
+      {t:"Kiểm tra",d:"Thử tất cả chế năng: mã, vân tay, thẻ, chìa cơ, chuông",type:"check"}
+    ]},
+    { id:97, name:"Lắp hệ thống báo cháy", unit:"bộ", time:"1–3 ngày", steps:[
+      {t:"Thiết kế, lập sơ đồ",d:"Xác định vị trí đầu báo khói/nhiệt, nút nhấn, còi, trung tâm",type:"process"},
+      {t:"Kéo dây tín hiệu",d:"Kéo cáp chống cháy từ trung tâm đến các đầu báo",type:"process"},
+      {t:"Lắp đầu báo, nút nhấn",d:"Gắn đầu báo khói trên trần, nút nhấn khẩn cấp trên tường",type:"process"},
+      {t:"Lắp trung tâm báo cháy",d:"Lắp tủ trung tâm, đấu nối tất cả zone",type:"process"},
+      {t:"Lắp còi/đèn báo",d:"Gắn còi báo động, đèn chớp tại các tầng/lối thoát",type:"process"},
+      {t:"Kiểm tra từng đầu báo",d:"Thử từng đầu báo bằng khói/nhiệt, kiểm tra còi, hiển thị",type:"check"}
+    ]},
+    { id:98, name:"Làm sân vườn, lát sân", unit:"m²", time:"1 ngày/10–15m²", steps:[
+      {t:"San nền, đầm đất",d:"San phẳng nền đất, đầm chặt bằng máy đầm",type:"process"},
+      {t:"Đổ lớp cát/đá base",d:"Rải lớp đá 0x4 hoặc cát dày 10–15cm, đầm chặt",type:"process"},
+      {t:"Đổ bê tông lót (nếu có)",d:"Đổ lớp BT lót dày 5–10cm tạo nền cứng",type:"process"},
+      {t:"Lát gạch sân",d:"Lát gạch block/gạch terrazzo/đá tự nhiên lên nền, chít mạch",type:"process"},
+      {t:"Tạo độ dốc thoát nước",d:"Đảm bảo sân dốc về rãnh thoát ≥1–2%",type:"check"},
+      {t:"Hoàn thiện",d:"Lắp rãnh thoát nước, trồng cỏ viền (nếu có)",type:"process"}
+    ]},
+    { id:99, name:"Xây hàng rào, cổng", unit:"md", time:"2–5 ngày/10md", steps:[
+      {t:"Đào móng hàng rào",d:"Đào rãnh móng theo tuyến, đổ BT móng + cổ móng",type:"process"},
+      {t:"Xây trụ gạch/BT",d:"Xây hoặc đổ BT trụ hàng rào, khoảng cách 2.5–3m",type:"process"},
+      {t:"Xây thân hàng rào",d:"Xây gạch hoặc lắp lưới thép/hàng rào sắt giữa các trụ",type:"process"},
+      {t:"Trát, sơn hoàn thiện",d:"Trát, bả, sơn trụ và thân hàng rào",type:"process"},
+      {t:"Lắp cổng",d:"Lắp cánh cổng sắt/nhôm, bản lề, khóa",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra thẳng hàng, chắc chắn, cổng đóng mở",type:"check"}
+    ]},
+    { id:100, name:"Sơn sắt cổng, lan can", unit:"m²", time:"1 ngày/20–30m²", steps:[
+      {t:"Làm sạch bề mặt sắt",d:"Chà bàn chải sắt, giấy nhám, loại bỏ rỉ sét, sơn cũ bong",type:"process"},
+      {t:"Sơn chống rỉ 1–2 lớp",d:"Quét sơn chống rỉ, chờ khô 4h mỗi lớp",type:"process"},
+      {t:"Sơn phủ hoàn thiện 2 lớp",d:"Quét/phun sơn dầu/epoxy màu, mỗi lớp cách 4–6h",type:"process"},
+      {t:"Kiểm tra",d:"Kiểm tra phủ đều, không chảy, màu đồng nhất",type:"check"}
+    ]},
+    { id:101, name:"Vệ sinh công trình sau thi công", unit:"m²", time:"1–2 ngày/100m²", steps:[
+      {t:"Thu dọn vật liệu thừa",d:"Gom vật tư thừa, phân loại tái sử dụng/bỏ",type:"process"},
+      {t:"Quét dọn sàn, tường",d:"Quét bụi, gom rác xây dựng tất cả tầng",type:"process"},
+      {t:"Lau chùi bề mặt hoàn thiện",d:"Lau kính, gạch, sàn bằng hóa chất chuyên dụng",type:"process"},
+      {t:"Vệ sinh thiết bị vệ sinh",d:"Lau chùi bồn cầu, lavabo, sen, gương",type:"process"},
+      {t:"Kiểm tra tổng thể",d:"Kiểm tra toàn bộ công trình, ghi nhận sửa chữa (nếu còn)",type:"check"}
+    ]},
+    { id:102, name:"Thu dọn, vận chuyển phế thải", unit:"m³", time:"0.5–1 ngày", steps:[
+      {t:"Phân loại phế thải",d:"Phân loại: gạch vụn, sắt thép, gỗ, nhựa, hỗn hợp",type:"process"},
+      {t:"Đóng bao, tập kết",d:"Đóng bao tải, tập kết tại vị trí quy định",type:"process"},
+      {t:"Bốc xếp lên xe",d:"Dùng nhân công/xe nâng bốc lên xe tải",type:"process"},
+      {t:"Vận chuyển đến bãi đổ",d:"Vận chuyển đến bãi rác xây dựng được phép",type:"process"},
+      {t:"Xác nhận hoàn thành",d:"Lấy phiếu xác nhận đổ thải đúng nơi quy định",type:"check"}
+    ]}
+  ]}
+];
+
+function App() {
+  const [selected, setSelected] = React.useState(null);
+  const [search, setSearch] = React.useState('');
+  const [openCats, setOpenCats] = React.useState(DATA.map((_,i) => i));
+  const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+  const allTasks = DATA.flatMap(c => c.tasks.map(t => ({...t, cat: c.cat})));
+
+  const filtered = search.trim()
+    ? allTasks.filter(t => t.name.toLowerCase().includes(search.toLowerCase()) || String(t.id).includes(search))
+    : null;
+
+  const toggleCat = (i) => {
+    setOpenCats(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  };
+
+  const selectTask = (task) => {
+    setSelected(task);
+    setSidebarOpen(false);
+  };
+
+  const currentIndex = selected ? allTasks.findIndex(t => t.id === selected.id) : -1;
+  const prevTask = currentIndex > 0 ? allTasks[currentIndex - 1] : null;
+  const nextTask = currentIndex < allTasks.length - 1 ? allTasks[currentIndex + 1] : null;
+
+  return React.createElement('div', {className:'app'},
+    // Mobile header
+    React.createElement('div', {className:'mobile-header'},
+      React.createElement('h1', null, 'Quy trình thi công'),
+      React.createElement('button', {className:'hamburger', onClick: () => setSidebarOpen(!sidebarOpen)}, '☰')
+    ),
+    // Overlay
+    React.createElement('div', {className: 'sidebar-overlay' + (sidebarOpen ? ' open' : ''), onClick: () => setSidebarOpen(false)}),
+    // Sidebar
+    React.createElement('div', {className: 'sidebar' + (sidebarOpen ? ' open' : '')},
+      React.createElement('div', {className:'sidebar-header'},
+        React.createElement('h1', null, 'QUY TRÌNH THI CÔNG'),
+        React.createElement('p', null, 'Sửa chữa cải tạo công trình dân dụng')
+      ),
+      React.createElement('div', {className:'search-box'},
+        React.createElement('input', {
+          placeholder: 'Tìm công tác...',
+          value: search,
+          onChange: e => setSearch(e.target.value)
+        })
+      ),
+      React.createElement('div', {className:'sidebar-list'},
+        filtered ? (
+          filtered.length === 0
+            ? React.createElement('p', {style:{padding:16,color:'#64748b',fontSize:13}}, 'Không tìm thấy')
+            : filtered.map(t =>
+                React.createElement('button', {
+                  key: t.id,
+                  className: 'task-btn' + (selected && selected.id === t.id ? ' active' : ''),
+                  onClick: () => selectTask(t)
+                },
+                  React.createElement('span', {className:'num'}, t.id),
+                  t.name
+                )
+              )
+        ) : (
+          DATA.map((cat, ci) =>
+            React.createElement('div', {key: ci, className:'cat-group'},
+              React.createElement('button', {className:'cat-toggle', onClick: () => toggleCat(ci)},
+                React.createElement('span', {className: 'arrow' + (openCats.includes(ci) ? ' open' : '')}, '▶'),
+                cat.cat,
+                React.createElement('span', {className:'count'}, cat.tasks.length)
+              ),
+              openCats.includes(ci) && React.createElement('div', {className:'cat-items'},
+                cat.tasks.map(t =>
+                  React.createElement('button', {
+                    key: t.id,
+                    className: 'task-btn' + (selected && selected.id === t.id ? ' active' : ''),
+                    onClick: () => selectTask(t)
+                  },
+                    React.createElement('span', {className:'num'}, t.id),
+                    t.name
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    ),
+    // Main
+    React.createElement('div', {className:'main'},
+      !selected
+        ? React.createElement('div', {className:'welcome'},
+            React.createElement('div', {className:'welcome-icon'}, '🏗️'),
+            React.createElement('h2', null, 'Chọn một công tác từ danh sách'),
+            React.createElement('p', null, 'để xem sơ đồ quy trình thi công chi tiết')
+          )
+        : React.createElement(React.Fragment, null,
+            React.createElement('div', {className:'main-header'},
+              React.createElement('div', {className:'cat-label'}, selected.cat || DATA.find(c => c.tasks.some(t => t.id === selected.id))?.cat),
+              React.createElement('h2', null, selected.id + '. ' + selected.name),
+              React.createElement('div', {className:'meta'},
+                React.createElement('span', {className:'meta-tag'}, 'ĐVT: ', React.createElement('strong', null, selected.unit)),
+                React.createElement('span', {className:'meta-tag'}, 'T.gian: ', React.createElement('strong', null, selected.time)),
+                React.createElement('span', {className:'meta-tag'}, 'Bước: ', React.createElement('strong', null, selected.steps.length))
+              )
+            ),
+            React.createElement('div', {className:'flowchart'},
+              React.createElement('div', {className:'flow-node start'}, '▶  BẮT ĐẦU'),
+              selected.steps.map((s, i) =>
+                React.createElement(React.Fragment, {key: i},
+                  React.createElement('div', {className:'flow-arrow'},
+                    React.createElement('div', {className:'line'}),
+                    React.createElement('div', {className:'head'})
+                  ),
+                  React.createElement('div', {className: 'flow-node ' + s.type},
+                    React.createElement('div', {className:'title'},
+                      React.createElement('span', {className:'flow-step-num'}, i + 1),
+                      s.t
+                    ),
+                    React.createElement('div', {className:'desc'}, s.d)
+                  )
+                )
+              ),
+              React.createElement('div', {className:'flow-arrow'},
+                React.createElement('div', {className:'line'}),
+                React.createElement('div', {className:'head'})
+              ),
+              React.createElement('div', {className:'flow-node end'}, '■  HOÀN THÀNH')
+            ),
+            React.createElement('div', {className:'nav-buttons'},
+              React.createElement('button', {
+                className:'nav-btn',
+                disabled: !prevTask,
+                onClick: () => prevTask && selectTask(prevTask)
+              }, '← ' + (prevTask ? prevTask.name : '')),
+              React.createElement('button', {
+                className:'nav-btn',
+                disabled: !nextTask,
+                onClick: () => nextTask && selectTask(nextTask)
+              }, (nextTask ? nextTask.name : '') + ' →')
+            )
+          )
+    ),
+    // Print button
+    React.createElement('button', {className:'print-btn', onClick: () => window.print()}, '🖨️ In')
+  );
+}
+
+const root = document.getElementById('app');
+
+// Simple React-like render
+const script1 = document.createElement('script');
+script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js';
+script1.onload = () => {
+  const script2 = document.createElement('script');
+  script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js';
+  script2.onload = () => {
+    ReactDOM.createRoot(root).render(React.createElement(App));
+  };
+  document.head.appendChild(script2);
+};
+document.head.appendChild(script1);
+</script>
+</body>
+</html>
